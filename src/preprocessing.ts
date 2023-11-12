@@ -72,7 +72,7 @@ function M_op(bin: Bool[]): Field[] {
     const M: Field = Field.fromBits(bin.slice(i, i + 32));
     arr.push(M);
   }
-  
+
   return arr;
 }
 
