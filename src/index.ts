@@ -1,4 +1,4 @@
-import { Field, Provable } from 'o1js';
+import { Field, Provable, provable, Bool } from 'o1js';
 import { H as initialHashes, K } from './constants.js';
 import { ch, maj, SIGMA0, SIGMA1, sigma0, sigma1 } from './functions.js';
 
@@ -70,12 +70,19 @@ export function my_sha256(input: string) {
     H[7] = bitwiseAdditionMod32(h, H[7]);
   }
 
-  let hash_binary: Field[] = [];
-  for (let i = 0; i < 8; i++) {
-    hash_binary.concat(H[i]);
-  }
-
-  return hash_binary;
+  return H.map(x => x.toBits(32).map(y => y.toString())).flat().map((value) => (value == 'true' ? '1' : '0')).join('');
 }
 
-Provable.log(my_sha256('o1js'));
+Provable.log(my_sha256('abc'));
+Provable.log(bin2Hex(my_sha256('abc')))
+// Convert Binary to Hexadecimal number
+export function bin2Hex(x: string) {
+  let result = '';
+  for (let i = 0; i < x.length; i += 4) {
+    result += parseInt(x.substring(i, i + 4), 2).toString(16);
+  }
+  return result;
+}
+
+// my sha256:  b27400d99eb493edfec3f6d78fe76e740b5442a71e1a4ee76edacf0067493760
+// noble hash: ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad

@@ -1,4 +1,5 @@
-import { Field, Bool } from 'o1js';
+import { Field, Bool, Provable } from 'o1js';
+import { assert } from 'o1js/dist/node/lib/gadgets/common';
 
 /// Convert a string binary into an array of Bool
 function bStringToBoolArray(bString: string): Bool[] {
@@ -27,7 +28,6 @@ function stringToBoolArray(text: string): Bool[] {
     const binaryRepresentation = charCode.toString(2).padStart(8, '0');
     binaryString += binaryRepresentation;
   }
-
   return bStringToBoolArray(binaryString);
 }
 
@@ -67,9 +67,12 @@ function parsing512(bits: Bool[]): Bool[][] {
 
 // Parsing the message to obtain 16 32-bit blocks
 function M_op(bin: Bool[]): Field[] {
+  // Provable.log('Parsed Message: ', bin);
   const arr: Field[] = [];
   for (let i = 0; i < 512; i += 32) {
-    const M: Field = Field.fromBits(bin.slice(i, i + 32));
+    let sliced32 = bin.slice(i, i + 32);
+    // Provable.log('sliced32: ', sliced32);
+    const M: Field = Field.fromBits(sliced32);
     arr.push(M);
   }
 
@@ -78,13 +81,14 @@ function M_op(bin: Bool[]): Field[] {
 
 function bitwiseAddition2Mod32(a: Field, b: Field): Field {
   let sum = a.add(b);
-  const TWO_32 = Field(2 ** 32);
+  const TWO_32 = new Field(2n ** 32n);
 
   // Check if the sum is greater than or equal to 2^32
-  if (sum >= TWO_32) {
+  if (sum.toBigInt() >= TWO_32.toBigInt()) {
     // Subtract 2^32 to handle overflow
     sum = sum.sub(TWO_32);
   }
+  sum.assertLessThan(TWO_32);
 
   return sum;
 }
