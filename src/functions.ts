@@ -2,14 +2,18 @@ import { Field, Gadgets, Bool } from 'o1js';
 
 /// A binary rotation right function inspired from the sha256 circuit from circomlib
 /// This function replaces the native o1js function (Gadgets.rotate(x, r, 'right')) regarding that it only operates on hardcoded 64-bit field elements
-function RotR(x: Field, r: number): Field {
-  const x_binary = x.toBits(32);
+function RotR(input: Field, r: number): Field {
+  const input_binary = input.toBits(32);
   const out_binary: Bool[] = [];
 
   for (let i = 0; i < 32; i++) {
-    out_binary.push(x_binary[(i + r) % 32]);
+    out_binary.push(input_binary[(i + r) % 32]);
   }
-  return Field.fromBits(out_binary);
+  
+  const out_field = Field.fromBits(out_binary);
+  out_field.assertLessThanOrEqual(2n**32n);
+
+  return out_field 
 }
 
 /// A binary shift right function inspired from the sha256 circuit from circomlib
@@ -25,6 +29,7 @@ function ShR(x: Field, r: number): Field {
       out_binary.push(x_binary[i + r]);
     }
   }
+
   return Field.fromBits(out_binary);
 }
 
@@ -32,6 +37,7 @@ function ShR(x: Field, r: number): Field {
 function ch(x: Field, y: Field, z: Field): Field {
   const xy = Gadgets.and(x, y, 32);
   const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
+  
   return Gadgets.xor(xy, _xz, 32);
 }
 
@@ -82,4 +88,4 @@ function sigma1(x: Field) {
   return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
 }
 
-export { ch, maj, SIGMA0, SIGMA1, sigma0, sigma1 };
+export { RotR, ShR, ch, maj, SIGMA0, SIGMA1, sigma0, sigma1 };

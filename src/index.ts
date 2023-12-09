@@ -73,8 +73,6 @@ export function my_sha256(input: string) {
   return H.map(x => x.toBits(32).map(y => y.toString())).flat().map((value) => (value == 'true' ? '1' : '0')).join('');
 }
 
-Provable.log(my_sha256('abc'));
-Provable.log(bin2Hex(my_sha256('abc')))
 // Convert Binary to Hexadecimal number
 export function bin2Hex(x: string) {
   let result = '';
@@ -83,6 +81,10 @@ export function bin2Hex(x: string) {
   }
   return result;
 }
+
+Provable.log(my_sha256('abc'));
+Provable.log(bin2Hex(my_sha256('abc')));
+Provable.log("noble hash: ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
 
 // my sha256:  b27400d99eb493edfec3f6d78fe76e740b5442a71e1a4ee76edacf0067493760
 // noble hash: ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
