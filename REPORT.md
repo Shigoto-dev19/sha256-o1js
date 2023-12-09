@@ -2,7 +2,7 @@
 
 ## Progress Report --> December
 
-### DAY1
+### DAY1: 6th December
 - Resume with the project from the last stage of the ZK-Hack Hackathon submission.
 - The main hash function wasn't running due to the overflow of bits.
 - The reason was that the bitwise gadgets from o1js were hardcoded for 64-bit fields.
@@ -18,3 +18,14 @@
 - I added a parser and debugged to check the integrity of digests.
 - I am getting a 256-bit digest but it is not the expect result.
 - Finally had some satisfying results and decided to keep working on code semantics on DAY2.
+
+
+### DAY2: 7th December
+- The Hash function compiles, but the result is different from the expected digest, that means that some bitwise operation is wrong somewhere, which is quite difficult to track regarding that there is a lot of bitwise operations required for the SHA256 compression function.
+- I took the approach to test the bitwise functions one by one in order to start eliminating the source of semantic error.
+- Add tests for the rotate right bitwise function.
+- Add tests utilities for bitwise functions.
+- Add tests for the shift right bitwise function.
+- Add tests for the choice(ch) bitwise function.
+- Realized that SHA256 uses the "big-endian" convention but bitifying field in o1js uses the "little-endian" convention, I thought it was a problem but there is no need to reverse endianess since return a field take also the "LE" convention.
+- All in all, I figured out testing with o1js using jest. I will keep testing the rest of the bitwise function on DAY3.
