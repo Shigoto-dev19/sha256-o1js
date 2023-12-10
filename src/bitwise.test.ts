@@ -1,4 +1,5 @@
-import { RotR, ShR, ch } from './functions';
+import { RotR, ShR, ch, maj, sigma0, sigma1, SIGMA0, SIGMA1} from './functions';
+import { bitwiseAdditionMod32 as bitwiseAdditionMod32Field } from './preprocessing';
 import { Field } from 'o1js';
 import * as crypto from 'crypto';
 
@@ -25,11 +26,44 @@ function Ch(x: number, y: number, z: number): bigint {
     return outBig
 }
 
+function Maj(x: number, y: number, z: number): bigint { 
+    const out = (x & y) ^ (x & z) ^ (y & z);
+    let outBig = BigInt(out);
+    if (outBig < 0n) outBig += TWO32;
+
+    return outBig
+} 
+
+function σ0(x: number): bigint { 
+    return rotateRight(x, 7,) ^ rotateRight(x, 18) ^ shiftRight(x, 3);  
+}
+
+function σ1(x: number): bigint { 
+    return rotateRight(x, 17) ^ rotateRight(x, 19) ^ shiftRight(x, 10); 
+}
+
+function Σ0(x: number): bigint { 
+    const out = rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
+    return out
+}
+
+function Σ1(x: number): bigint { 
+    return rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25); 
+}
+
 function getRandomBytes(byteNumber: number): bigint {
     // Generate 4 random bytes
     const randomBytes = crypto.randomBytes(byteNumber);
     return BigInt("0x" + randomBytes.toString("hex"));
-  }
+}
+
+function additionMod32(...args: number[]): bigint {
+    const out = args.reduce((result, value) => (result + value) | 0, 0);
+    let outBig = BigInt(out);
+    if (outBig < 0n) outBig += TWO32;
+
+    return outBig
+}
 
 describe('Bitwise Operation Tests', () => {
     
@@ -197,9 +231,154 @@ describe('Bitwise Operation Tests', () => {
         });
     });
 
-    describe('MAJ', () => {
-        test('Maj test1', () => {
-            expect(true).toBeTruthy()
-        })
+    describe('Majority: Maj bitwise function tests', () => {
+
+        test('should correctly have majority of 3 random 32-bit Fields', () => {
+            const random32BitBigints = Array.from({ length: 3 }, () => Number(getRandomBytes(4)));
+            const [r1, r2, r3] = random32BitBigints;
+            const actual = maj(Field(r1), Field(r2), Field(r3)).toBigInt();
+            const expected = Maj(r1, r2, r3);
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly have majority of 3 random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitBigints = Array.from({ length: 3 }, () => Number(getRandomBytes(4)));
+                let [r1, r2, r3] = random32BitBigints;
+                let actual = maj(Field(r1), Field(r2), Field(r3)).toBigInt();
+                let expected = Maj(r1, r2, r3);
+
+                expect(actual).toBe(expected);
+            }
+        });
     });
-  });
+
+    describe('σ0: small sigma0 SHA256 bitwise function tests', () => {
+
+        test('should correctly sigma0 of a random 32-bit Fields', () => {
+            const random32BitNumber = Number(getRandomBytes(4));
+            const actual = sigma0(Field(random32BitNumber)).toBigInt();
+            const expected = BigInt(σ0(random32BitNumber));
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly sigma0 of a random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitNumber = Number(getRandomBytes(4));
+                let actual = sigma0(Field(random32BitNumber)).toBigInt();
+                let expected = BigInt(σ0(random32BitNumber));
+
+                expect(actual).toBe(expected);
+            }
+        });
+    });
+
+    describe('σ1: small sigma1 SHA256 bitwise function tests', () => {
+
+        test('should correctly sigma1 of a random 32-bit Fields', () => {
+            const random32BitNumber = Number(getRandomBytes(4));
+            const actual = sigma1(Field(random32BitNumber)).toBigInt();
+            const expected = BigInt(σ1(random32BitNumber));
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly sigma1 of a random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitNumber = Number(getRandomBytes(4));
+                let actual = sigma1(Field(random32BitNumber)).toBigInt();
+                let expected = BigInt(σ1(random32BitNumber));
+
+                expect(actual).toBe(expected);
+            }
+        });
+    });
+
+    describe('Σ0: big SIGMA0 SHA256 bitwise function tests', () => {
+
+        test('should correctly SIGMA0 of a random 32-bit Fields', () => {
+            const random32BitNumber = Number(getRandomBytes(4));
+            const actual = SIGMA0(Field(random32BitNumber)).toBigInt();
+            const expected = BigInt(Σ0(random32BitNumber));
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly SIGMA0 of a random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitNumber = Number(getRandomBytes(4));
+                let actual = SIGMA0(Field(random32BitNumber)).toBigInt();
+                let expected = BigInt(Σ0(random32BitNumber));
+
+                expect(actual).toBe(expected);
+            }
+        });
+    });
+
+    describe('Σ1: big SIGMA1 SHA256 bitwise function tests', () => {
+
+        test('should correctly SIGMA1 of a random 32-bit Fields', () => {
+            const random32BitNumber = Number(getRandomBytes(4));
+            const actual = SIGMA1(Field(random32BitNumber)).toBigInt();
+            const expected = BigInt(Σ1(random32BitNumber));
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly SIGMA1 of a random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitNumber = Number(getRandomBytes(4));
+                let actual = SIGMA1(Field(random32BitNumber)).toBigInt();
+                let expected = BigInt(Σ1(random32BitNumber));
+
+                expect(actual).toBe(expected);
+            }
+        });
+    });
+
+    describe.only('additionMod32 function for SHA-256', () => {
+
+        test('should correctly do addition mod 32 for 2 random 32-bit Fields', () => {
+            const random32BitBigints = Array.from({ length: 2 }, () => Number(getRandomBytes(4)));
+            const [r1, r2] = random32BitBigints;
+            const actual = bitwiseAdditionMod32Field(Field(r1), Field(r2)).toBigInt();
+            const expected = additionMod32(r1, r2);
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly do addition mod 32 for 2 random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitBigints = Array.from({ length: 2 }, () => Number(getRandomBytes(4)));
+                let [r1, r2] = random32BitBigints;
+                let actual = bitwiseAdditionMod32Field(Field(r1), Field(r2)).toBigInt();
+                let expected = additionMod32(r1, r2);
+
+                expect(actual).toBe(expected);
+            }
+        });
+
+        test('should correctly do addition mod 32 for 3 random 32-bit Fields', () => {
+            const random32BitBigints = Array.from({ length: 3 }, () => Number(getRandomBytes(4)));
+            const [r1, r2, r3] = random32BitBigints;
+            const actual = bitwiseAdditionMod32Field(Field(r1), Field(r2), Field(r3)).toBigInt();
+            const expected = additionMod32(r1, r2, r3);
+
+            expect(actual).toBe(expected);
+        });
+
+        test('should correctly do addition mod 32 for 3 random 32-bit Fields - 1000 ITERATIONS', () => {
+            for (let i = 0; i < 1000; i++) {
+                let random32BitBigints = Array.from({ length: 3 }, () => Number(getRandomBytes(4)));
+                let [r1, r2, r3] = random32BitBigints;
+                let actual = bitwiseAdditionMod32Field(Field(r1), Field(r2), Field(r3)).toBigInt();
+                let expected = additionMod32(r1, r2, r3);
+
+                expect(actual).toBe(expected);
+            }
+        });    
+    });
+
+});
