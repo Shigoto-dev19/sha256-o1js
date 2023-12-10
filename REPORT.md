@@ -20,7 +20,7 @@
 - Finally had some satisfying results and decided to keep working on code semantics on DAY2.
 
 
-### DAY2: 7th December
+### DAY2: 7-8th December
 - The Hash function compiles, but the result is different from the expected digest, that means that some bitwise operation is wrong somewhere, which is quite difficult to track regarding that there is a lot of bitwise operations required for the SHA256 compression function.
 - I took the approach to test the bitwise functions one by one in order to start eliminating the source of semantic error.
 - Add tests for the rotate right bitwise function.
@@ -29,3 +29,15 @@
 - Add tests for the choice(ch) bitwise function.
 - Realized that SHA256 uses the "big-endian" convention but bitifying field in o1js uses the "little-endian" convention, I thought it was a problem but there is no need to reverse endianess since return a field take also the "LE" convention.
 - All in all, I figured out testing with o1js using jest. I will keep testing the rest of the bitwise function on DAY3.
+
+### DAY3: 10th December
+- Resume adding tests for bitwise functions to check integerity for each operation separately.
+    - Add tests for the majority bitwise function.
+    - Add tests SHA256 σ0 bitwise function.
+    - Add tests for SHA256 σ1 bitwise function.
+    - Add tests for SHA256 Σ0 bitwise function.
+    - Add tests for SHA256 Σ1 bitwise function.
+    - Add tests for Addition Modulo 32 function.
+- All unit bitwise function work seamlessly asserted to common JS bitwise functions used in [verified SHA256 code](https://www.movable-type.co.uk/scripts/sha256.html).
+- Check endianess compliance here and there but still the same problem.
+- Suspect error source from preprocessing . I will start testing preprocessing outputs on DAY4.  

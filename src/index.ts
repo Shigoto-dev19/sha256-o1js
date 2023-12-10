@@ -70,7 +70,7 @@ export function my_sha256(input: string) {
     H[7] = bitwiseAdditionMod32(h, H[7]);
   }
 
-  return H.map(x => x.toBits(32).map(y => y.toString())).flat().map((value) => (value == 'true' ? '1' : '0')).join('');
+  return H.map(x => x.toBits(32).reverse().map(y => y.toString())).flat().map((value) => (value == 'true' ? '1' : '0')).join('');
 }
 
 // Convert Binary to Hexadecimal number
