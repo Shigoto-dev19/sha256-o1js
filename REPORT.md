@@ -41,3 +41,16 @@
 - All unit bitwise function work seamlessly asserted to common JS bitwise functions used in [verified SHA256 code](https://www.movable-type.co.uk/scripts/sha256.html).
 - Check endianess compliance here and there but still the same problem.
 - Suspect error source from preprocessing . I will start testing preprocessing outputs on DAY4.  
+
+### DAY4: 12th December
+- Add tests for binary conversion
+    - Check that converting a string to binary works as expected.
+    - Check that converting a number to binary works as expected.
+    - Check that the padding function output is the same as in **FIPS PUB 180-4** ('abc' digest example);
+- My approach was to check the integrity of binary conversions for a known verified example such as 'abc' to track the error source.
+- It took me a lot of time to find a strategy to eliminate probable bugs dealing with the complicated SHA256 algorithm with focus on preprocessing.
+- It seems everything works fine
+    - I checked endianess of Fields again --> ok
+    - I did some log checks on the overall preprocessing --> ok
+    - The digest is in the wanted range of bits: 256 bits --> no problem with parsing --> ok
+- I still cannot figure out the source error of non-compliant digests. I will start a deep analysis of the SHA256 computation on DAY5.
