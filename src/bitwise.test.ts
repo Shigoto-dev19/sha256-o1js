@@ -338,7 +338,7 @@ describe('Bitwise Operation Tests', () => {
         });
     });
 
-    describe.only('additionMod32 function for SHA-256', () => {
+    describe('additionMod32 function for SHA-256', () => {
 
         test('should correctly do addition mod 32 for 2 random 32-bit Fields', () => {
             const random32BitBigints = Array.from({ length: 2 }, () => Number(getRandomBytes(4)));

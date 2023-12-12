@@ -1,4 +1,5 @@
-import { Field, Bool } from 'o1js';
+import { Field, Bool, Provable } from 'o1js';
+
 const TWO32 = new Field(2n ** 32n);
 
 /// Convert a string binary into an array of Bool
@@ -33,10 +34,9 @@ function stringToBoolArray(text: string): Bool[] {
 
 // Convert decimal number into a Bool Array
 function numberToBoolArray(dec: number): Bool[] {
-  const bString = (dec >>> 0).toString(2);
-  const bString_padded = '0'.repeat(64 - bString.length) + bString;
+  const bString = dec.toString(2).padStart(64, '0');
 
-  return bStringToBoolArray(bString_padded);
+  return bStringToBoolArray(bString);
 }
 
 function padding(input: string): Bool[] {
@@ -49,9 +49,10 @@ function padding(input: string): Bool[] {
   }
   const result = [...input_binary, ...bStringToBoolArray('0'.repeat(k)), ...ld];
   // assert(result.length % 512 === 0);
-
-  return result;
+  
+  return result
 }
+
 // Parsing the message to obtain N-512 bit blocks
 function parsing512(bits: Bool[]): Bool[][] {
   const N: Bool[][] = [];
@@ -68,13 +69,16 @@ function parsing512(bits: Bool[]): Bool[][] {
 // Parsing the message to obtain 16 32-bit blocks
 function M_op(bin: Bool[]): Field[] {
   const arr: Field[] = [];
+
   for (let i = 0; i < 512; i += 32) {
     let sliced32 = bin.slice(i, i + 32);
-    const M: Field = Field.fromBits(sliced32);
+    // reverse to convert BE to LE convention
+    let M: Field = Field.fromBits(sliced32.reverse());
     arr.push(M);
   }
+  Provable.log('parsed 32 result: ', arr);
 
-  return arr;
+  return arr
 }
 
 function bitwiseAddition2Mod32(a: Field, b: Field): Field {
