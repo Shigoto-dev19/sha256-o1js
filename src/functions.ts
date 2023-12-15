@@ -1,4 +1,5 @@
 import { Field, Gadgets, Bool } from 'o1js';
+const TWO32 = new Field(2n ** 32n);
 
 /// A binary rotation right function inspired from the sha256 circuit from circomlib
 /// This function replaces the native o1js function (Gadgets.rotate(x, r, 'right')) regarding that it only operates on hardcoded 64-bit field elements
@@ -9,11 +10,11 @@ function RotR(input: Field, r: number): Field {
   for (let i = 0; i < 32; i++) {
     out_binary.push(input_binary[(i + r) % 32]);
   }
-  
-  const out_field = Field.fromBits(out_binary);
-  out_field.assertLessThanOrEqual(2n**32n);
 
-  return out_field 
+  const out_field = Field.fromBits(out_binary);
+  out_field.assertLessThanOrEqual(2n ** 32n);
+
+  return out_field;
 }
 
 /// A binary shift right function inspired from the sha256 circuit from circomlib
@@ -37,7 +38,7 @@ function ShR(x: Field, r: number): Field {
 function ch(x: Field, y: Field, z: Field): Field {
   const xy = Gadgets.and(x, y, 32);
   const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
-  
+
   return Gadgets.xor(xy, _xz, 32);
 }
 
@@ -88,4 +89,38 @@ function sigma1(x: Field) {
   return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
 }
 
-export { RotR, ShR, ch, maj, SIGMA0, SIGMA1, sigma0, sigma1 };
+function bitwiseAddition2Mod32(a: Field, b: Field): Field {
+  let sum = a.add(b);
+
+  // Check if the sum is greater than or equal to 2^32
+  if (sum.toBigInt() >= TWO32.toBigInt()) {
+    // Subtract 2^32 to handle overflow
+    sum = sum.sub(TWO32);
+  }
+  sum.assertLessThan(TWO32);
+
+  return sum;
+}
+
+function bitwiseAdditionMod32(...args: Field[]): Field {
+  let sum = Field(0);
+
+  // Add each argument using the bitwiseAdditionMod32 function
+  for (const val of args) {
+    sum = bitwiseAddition2Mod32(sum, val);
+  }
+
+  return sum;
+}
+
+export {
+  RotR,
+  ShR,
+  ch,
+  maj,
+  SIGMA0,
+  SIGMA1,
+  sigma0,
+  sigma1,
+  bitwiseAdditionMod32,
+};
