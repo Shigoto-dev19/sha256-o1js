@@ -54,3 +54,18 @@
     - I did some log checks on the overall preprocessing --> ok
     - The digest is in the wanted range of bits: 256 bits --> no problem with parsing --> ok
 - I still cannot figure out the source error of non-compliant digests. I will start a deep analysis of the SHA256 computation on DAY5.
+
+### DAY5: 13-15th December
+- It is starting to feel hitting a wall for not finding the error source after three days of work so I decided to clear my mind and take a step back organising my code to make it partitioned and more readable.
+- Move the `bitwiseAdditionMod32` function from "preprocessing.ts" to "functions.ts" file.
+- Add preprocessing tests for empty string case.
+- Add `BinaryString` type to inhibit confusion from the casual *string* type from a string of binary number.
+    - **NOTE:** This type is set now for readability but later it will be set as constrainted subtype of string that contains only '0' and '1' such as '0101010110011110'.
+- Add new file `utils.ts` that contains all binary conversion utilities
+    - Move `binaryToHex` function from **index.ts** to **utils.ts** file.
+    - Move `bstringToBoolArray`, `stringToBoolArray` and `numberToBoolArray` functions from **preprocessing.ts** to **utils.ts** file.
+    - Merge `bstringToBoolArray`, `stringToBoolArray` and `numberToBoolArray` into a single function called `toBoolArray` that is type dependant.
+    - Move `generateRandomString` from **preprocessing.test.ts** file to **utils.ts** file.
+    - Add `boolArrayToBinaryString` function that converts an array of o1js Bool type into a binary string type.
+    - Remove `binaryToArray` function and use *BinaryString'ified* ouputs of `toBinary` function --> this helps refactor and make the tests more readable.
+- TODO: Check integrity of message blocks H^i one by one to track source error for input=string=empty.
