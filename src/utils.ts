@@ -117,11 +117,33 @@ function generateRandomString(
   return result;
 }
 
+/**
+ * Generate a random number in range of 0 and a given upperbound max.
+ * Utilized for testing random inputs for the main sha256 function.
+ */
+function generateRandomNumber(max: number): number {
+  // Generate a random number between 0 (inclusive) and 1 (exclusive)
+  const randomNumber = Math.random();
+
+  // Scale the random number to the desired range [0, max)
+  const scaledNumber = Math.floor(randomNumber * max);
+
+  return scaledNumber;
+}
+
+function generateRandomInput(max = 1000): string {
+  const randomLength = generateRandomNumber(max);
+  const randomInput = generateRandomString(randomLength);
+
+  return randomInput;
+}
 export {
   fieldToBinary,
   binaryToHex,
   toBoolArray,
   toBinaryString,
-  generateRandomString,
   boolArrayToBinaryString,
+  generateRandomString,
+  generateRandomNumber,
+  generateRandomInput,
 };

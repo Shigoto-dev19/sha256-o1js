@@ -1,4 +1,4 @@
-import { Field, Bool, Provable } from 'o1js';
+import { Field, Bool } from 'o1js';
 import { toBoolArray } from './utils.js';
 
 function padding(input: string): Bool[] {
@@ -38,7 +38,6 @@ function M_op(bin: Bool[]): Field[] {
     let M: Field = Field.fromBits(sliced32.reverse());
     arr.push(M);
   }
-  Provable.log('parsed 32 result: ', arr);
 
   return arr;
 }
