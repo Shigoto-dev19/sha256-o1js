@@ -69,3 +69,20 @@
     - Add `boolArrayToBinaryString` function that converts an array of o1js Bool type into a binary string type.
     - Remove `binaryToArray` function and use *BinaryString'ified* ouputs of `toBinary` function --> this helps refactor and make the tests more readable.
 - TODO: Check integrity of message blocks H^i one by one to track source error for input=string=empty.
+
+### DAY6: 16th December
+- After investigating the SHA256 message blocks attentively, I noticed that the initial hashes weren't compliant following the expected initial hashed H. The problem was not assigning the initial hashed due to a hilarious mistake.
+    - Setting `H = initialHashes`: 
+        - This makes H reference the same array as initialHashes.  
+        - Changes made to the elements of W or H will affect both arrays because they are the same array in memory.
+    - Setting `H = [...initialHashes]`:
+        - This creates a new array W with the same elements as H.
+        - Changes made to the elements of W will not affect H, and vice versa.
+    - This small mistake in assigning inital hashes is what caused the wrong digests all the time.
+    - Because SHA256 has the avalanche effect, a small change always produced a significantly different hash value
+    - This effect made it very difficult to track the error source.
+- Add `generateRandomNumber` & `generateRandomInput` functions as test utilities for random input generation for testing the main sha256 function.
+- Add tests for the main sha256 hash function
+    - Test against [NIST Test Vectors](https://www.di-mgt.com.au/sha_testvectors.html);
+    - Test against node-js sha256 implementation.
+    - TODO: Add chained tests & sliding windows tests following the noble approach by paul millr
