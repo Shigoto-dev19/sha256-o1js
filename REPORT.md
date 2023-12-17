@@ -86,3 +86,18 @@
     - Test against [NIST Test Vectors](https://www.di-mgt.com.au/sha_testvectors.html);
     - Test against node-js sha256 implementation.
     - TODO: Add chained tests & sliding windows tests following the noble approach by paul millr
+
+### DAY7: 17th December
+- Add chained tests and sliding windows tests following [noble approach to testing](https://github.com/paulmillr/noble-hashes/blob/main/test/README.md)
+    - The tests take a long time to finish in general.
+    - The sliding window tests pointed into a bug in the utility function `toBoolArray` that input as string that contain zeros and ones are processed as a `BinaryString` type which made the test fail.
+    - Overall, it is reassuring the the o1js SHA256 hash function works seamlessly.
+    - I spend time to add the seperated sliding window 768=256*3 following three separated 256-window test but I realized that this test requires update method for the hash function which is a continuation of hash computation starting from a given message block. 
+    - For now, this is not a top priority feature to add that's why I decided not to work on it any further.
+- Following the error found after running the new tests
+    - Add a new function `binaryStringToBoolArray` seperated from the original `toBoolArray` function in **utils.ts** file.
+- TODO: 
+    - Refactor bitwise tests
+    - Refactor preprocessing tests
+    - Refactor sha256 tests
+    - Fix notations and make them more readable
