@@ -1,5 +1,5 @@
 import { Field, Bool } from 'o1js';
-import { toBoolArray } from './utils.js';
+import { toBoolArray, binaryStringToBoolArray } from './utils.js';
 
 function padding(input: string): Bool[] {
   let input_binary = toBoolArray(input);
@@ -9,7 +9,11 @@ function padding(input: string): Bool[] {
   while (k < 0) {
     k += 512;
   }
-  const result = [...input_binary, ...toBoolArray('0'.repeat(k)), ...ld];
+  const result = [
+    ...input_binary,
+    ...binaryStringToBoolArray('0'.repeat(k)),
+    ...ld,
+  ];
   // assert(result.length % 512 === 0);
 
   return result;

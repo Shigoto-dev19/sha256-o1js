@@ -27,51 +27,47 @@ function binaryToHex(x: string): string {
 /**
  * Checks if a string is only a combination of '0's and '1's.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isBinaryString(input: string | number): boolean {
   if (typeof input == 'number') throw new Error();
   return /^[01]*$/.test(input);
 }
 
-function toBoolArray<T extends BinaryString | string | number>(
-  input: T
-): Bool[] {
-  /**
-   *  This function is used in the preprocessing of a string input of the SHA256 hash function.
-   *  Convert a binary number from string type such as '010110' into an array of Bool --> [Bool(false), Bool(true), Bool(false), Bool(true), Bool(true), Bool(false)]
-   */
-  const binaryToBoolArray = (binaryString: BinaryString) => {
-    const boolArray: Bool[] = [];
-    for (let i = 0; i < binaryString.length; i++) {
-      const bDigit = binaryString[i];
-      // Check if the character is '0' or '1' and push the corresponding boolean value
-      if (bDigit === '0') {
-        boolArray.push(Bool(false));
-      } else if (bDigit === '1') {
-        boolArray.push(Bool(true));
-      } else {
-        // Handle invalid characters if needed
-        console.error(`Invalid character at position ${i}: ${bDigit}`);
-      }
+/**
+ *  This function is used in the preprocessing of a string input of the SHA256 hash function.
+ *  Convert a binary number from string type such as '010110' into an array of Bool --> [Bool(false), Bool(true), Bool(false), Bool(true), Bool(true), Bool(false)]
+ */
+function binaryStringToBoolArray(binaryString: BinaryString): Bool[] {
+  const boolArray: Bool[] = [];
+  for (let i = 0; i < binaryString.length; i++) {
+    const bDigit = binaryString[i];
+    // Check if the character is '0' or '1' and push the corresponding boolean value
+    if (bDigit === '0') {
+      boolArray.push(Bool(false));
+    } else if (bDigit === '1') {
+      boolArray.push(Bool(true));
+    } else {
+      // Handle invalid characters if needed
+      console.error(`Invalid character at position ${i}: ${bDigit}`);
     }
-    return boolArray;
-  };
+  }
+  return boolArray;
+}
 
-  if (typeof input === 'string' && isBinaryString(input)) {
-    /// Convert a binary string into an o1js Bool type array.
-    return binaryToBoolArray(input);
-  } else if (typeof input === 'string') {
+function toBoolArray<T extends string | number>(input: T): Bool[] {
+  if (typeof input === 'string') {
     /// UTF-8 encode a string and convert the binary string into an o1js Bool type array.
     let binaryString = '';
     for (let i = 0; i < input.length; i++) {
-      const charCode = input.charCodeAt(i);
-      const binaryRepresentation = charCode.toString(2).padStart(8, '0');
+      let charCode = input.charCodeAt(i);
+      let binaryRepresentation = charCode.toString(2).padStart(8, '0');
       binaryString += binaryRepresentation;
     }
-    return binaryToBoolArray(binaryString);
+    return binaryStringToBoolArray(binaryString);
   } else if (typeof input === 'number') {
     /// Convert the input number from decimal to binary string and then inot an o1js Bool type array.
     const binaryString = input.toString(2).padStart(64, '0');
-    return binaryToBoolArray(binaryString);
+    return binaryStringToBoolArray(binaryString);
   } else {
     /// Handle other cases
     throw new Error(
@@ -142,6 +138,7 @@ export {
   binaryToHex,
   toBoolArray,
   toBinaryString,
+  binaryStringToBoolArray,
   boolArrayToBinaryString,
   generateRandomString,
   generateRandomNumber,

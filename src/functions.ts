@@ -76,9 +76,9 @@ function sigma0(x: Field) {
   const rotr7 = RotR(x, 7);
   const rotr18 = RotR(x, 18);
   const shr3 = ShR(x, 3);
-  // let a = Provable.witness(Field, () => Field(rotr7.toBigInt() % 2n**32n))
-  const rtor7x18 = Gadgets.xor(rotr7, rotr18, 32);
-  return Gadgets.xor(rtor7x18, shr3, 32);
+
+  const rotr7x18 = Gadgets.xor(rotr7, rotr18, 32);
+  return Gadgets.xor(rotr7x18, shr3, 32);
 }
 
 /// σ1(x) = ROTR(17, x) XOR ROTR(19, x) XOR (x>>>10)
