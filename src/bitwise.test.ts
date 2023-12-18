@@ -28,7 +28,7 @@ function shiftRight(value: number, shift: number): bigint {
   return BigInt(shifted);
 }
 
-function Ch(x: number, y: number, z: number): bigint {
+function choice(x: number, y: number, z: number): bigint {
   const out = (x & y) ^ (~x & z);
   let outBig = BigInt(out);
   if (outBig < 0n) outBig += TWO32;
@@ -36,7 +36,7 @@ function Ch(x: number, y: number, z: number): bigint {
   return outBig;
 }
 
-function Maj(x: number, y: number, z: number): bigint {
+function majority(x: number, y: number, z: number): bigint {
   const out = (x & y) ^ (x & z) ^ (y & z);
   let outBig = BigInt(out);
   if (outBig < 0n) outBig += TWO32;
@@ -53,15 +53,14 @@ function σ1(x: number): bigint {
 }
 
 function Σ0(x: number): bigint {
-  const out = rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
-  return out;
+  return rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
 }
 
 function Σ1(x: number): bigint {
   return rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25);
 }
 
-function getRandomBytes(byteNumber: number): bigint {
+function generateRandomBytes(byteNumber: number): bigint {
   // Generate 4 random bytes
   const randomBytes = crypto.randomBytes(byteNumber);
   return BigInt('0x' + randomBytes.toString('hex'));
@@ -78,8 +77,8 @@ function additionMod32(...args: number[]): bigint {
 describe('Bitwise Operation Tests', () => {
   describe('Rotate Right bitwise function tests', () => {
     test('should correctly rotate a random 32-bit integer to the right by a random number of bits', () => {
-      const input = getRandomBytes(4);
-      const rotationBits = Number(getRandomBytes(1) % 32n);
+      const input = generateRandomBytes(4);
+      const rotationBits = Number(generateRandomBytes(1) % 32n);
       const rotated_actual = RotR(Field(input), rotationBits).toBigInt();
       const rotated_expected = BigInt(rotateRight(Number(input), rotationBits));
 
@@ -88,8 +87,8 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly rotate a random 32-bit integer to the right by a random number of bits - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let input = getRandomBytes(4);
-        let rotationBits = Number(getRandomBytes(1) % 32n);
+        let input = generateRandomBytes(4);
+        let rotationBits = Number(generateRandomBytes(1) % 32n);
         let rotated_actual = RotR(Field(input), rotationBits).toBigInt();
         let rotated_expected = BigInt(rotateRight(Number(input), rotationBits));
 
@@ -172,8 +171,8 @@ describe('Bitwise Operation Tests', () => {
 
   describe('Shift Right bitwise function tests', () => {
     test('should correctly shift a random 32-bit integer to the right by a random number of bits', () => {
-      const input = getRandomBytes(4);
-      const rotationBits = Number(getRandomBytes(1) % 32n);
+      const input = generateRandomBytes(4);
+      const rotationBits = Number(generateRandomBytes(1) % 32n);
       const shifted_actual = ShR(Field(input), rotationBits).toBigInt();
       const shifted_expected = BigInt(shiftRight(Number(input), rotationBits));
 
@@ -182,8 +181,8 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly shift a random 32-bit integer to the right by a random number of bits - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let input = getRandomBytes(4);
-        let rotationBits = Number(getRandomBytes(1) % 32n);
+        let input = generateRandomBytes(4);
+        let rotationBits = Number(generateRandomBytes(1) % 32n);
         let rotated_actual = RotR(Field(input), rotationBits).toBigInt();
         let rotated_expected = BigInt(rotateRight(Number(input), rotationBits));
 
@@ -215,18 +214,18 @@ describe('Bitwise Operation Tests', () => {
         Field(0x12345678),
         Field(0x87654321)
       ).toBigInt();
-      const expected = Ch(0xabcdef12, 0x12345678, 0x87654321);
+      const expected = choice(0xabcdef12, 0x12345678, 0x87654321);
 
       expect(actual).toBe(expected);
     });
 
     test('should correctly have choice of 3 random 32-bit Fields', () => {
       const random32BitBigints = Array.from({ length: 3 }, () =>
-        Number(getRandomBytes(4))
+        Number(generateRandomBytes(4))
       );
       const [r1, r2, r3] = random32BitBigints;
       const actual = ch(Field(r1), Field(r2), Field(r3)).toBigInt();
-      const expected = Ch(r1, r2, r3);
+      const expected = choice(r1, r2, r3);
 
       expect(actual).toBe(expected);
     });
@@ -234,11 +233,11 @@ describe('Bitwise Operation Tests', () => {
     test('should correctly have choice of 3 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
         let random32BitBigints = Array.from({ length: 3 }, () =>
-          Number(getRandomBytes(4))
+          Number(generateRandomBytes(4))
         );
         let [r1, r2, r3] = random32BitBigints;
         let actual = ch(Field(r1), Field(r2), Field(r3)).toBigInt();
-        let expected = Ch(r1, r2, r3);
+        let expected = choice(r1, r2, r3);
 
         expect(actual).toBe(expected);
       }
@@ -248,11 +247,11 @@ describe('Bitwise Operation Tests', () => {
   describe('Majority: Maj bitwise function tests', () => {
     test('should correctly have majority of 3 random 32-bit Fields', () => {
       const random32BitBigints = Array.from({ length: 3 }, () =>
-        Number(getRandomBytes(4))
+        Number(generateRandomBytes(4))
       );
       const [r1, r2, r3] = random32BitBigints;
       const actual = maj(Field(r1), Field(r2), Field(r3)).toBigInt();
-      const expected = Maj(r1, r2, r3);
+      const expected = majority(r1, r2, r3);
 
       expect(actual).toBe(expected);
     });
@@ -260,11 +259,11 @@ describe('Bitwise Operation Tests', () => {
     test('should correctly have majority of 3 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
         let random32BitBigints = Array.from({ length: 3 }, () =>
-          Number(getRandomBytes(4))
+          Number(generateRandomBytes(4))
         );
         let [r1, r2, r3] = random32BitBigints;
         let actual = maj(Field(r1), Field(r2), Field(r3)).toBigInt();
-        let expected = Maj(r1, r2, r3);
+        let expected = majority(r1, r2, r3);
 
         expect(actual).toBe(expected);
       }
@@ -273,7 +272,7 @@ describe('Bitwise Operation Tests', () => {
 
   describe('σ0: small sigma0 SHA256 bitwise function tests', () => {
     test('should correctly sigma0 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(getRandomBytes(4));
+      const random32BitNumber = Number(generateRandomBytes(4));
       const actual = sigma0(Field(random32BitNumber)).toBigInt();
       const expected = BigInt(σ0(random32BitNumber));
 
@@ -282,7 +281,7 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly sigma0 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(getRandomBytes(4));
+        let random32BitNumber = Number(generateRandomBytes(4));
         let actual = sigma0(Field(random32BitNumber)).toBigInt();
         let expected = BigInt(σ0(random32BitNumber));
 
@@ -293,7 +292,7 @@ describe('Bitwise Operation Tests', () => {
 
   describe('σ1: small sigma1 SHA256 bitwise function tests', () => {
     test('should correctly sigma1 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(getRandomBytes(4));
+      const random32BitNumber = Number(generateRandomBytes(4));
       const actual = sigma1(Field(random32BitNumber)).toBigInt();
       const expected = BigInt(σ1(random32BitNumber));
 
@@ -302,7 +301,7 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly sigma1 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(getRandomBytes(4));
+        let random32BitNumber = Number(generateRandomBytes(4));
         let actual = sigma1(Field(random32BitNumber)).toBigInt();
         let expected = BigInt(σ1(random32BitNumber));
 
@@ -313,7 +312,7 @@ describe('Bitwise Operation Tests', () => {
 
   describe('Σ0: big SIGMA0 SHA256 bitwise function tests', () => {
     test('should correctly SIGMA0 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(getRandomBytes(4));
+      const random32BitNumber = Number(generateRandomBytes(4));
       const actual = SIGMA0(Field(random32BitNumber)).toBigInt();
       const expected = BigInt(Σ0(random32BitNumber));
 
@@ -322,7 +321,7 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly SIGMA0 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(getRandomBytes(4));
+        let random32BitNumber = Number(generateRandomBytes(4));
         let actual = SIGMA0(Field(random32BitNumber)).toBigInt();
         let expected = BigInt(Σ0(random32BitNumber));
 
@@ -333,7 +332,7 @@ describe('Bitwise Operation Tests', () => {
 
   describe('Σ1: big SIGMA1 SHA256 bitwise function tests', () => {
     test('should correctly SIGMA1 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(getRandomBytes(4));
+      const random32BitNumber = Number(generateRandomBytes(4));
       const actual = SIGMA1(Field(random32BitNumber)).toBigInt();
       const expected = BigInt(Σ1(random32BitNumber));
 
@@ -342,7 +341,7 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly SIGMA1 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(getRandomBytes(4));
+        let random32BitNumber = Number(generateRandomBytes(4));
         let actual = SIGMA1(Field(random32BitNumber)).toBigInt();
         let expected = BigInt(Σ1(random32BitNumber));
 
@@ -351,10 +350,10 @@ describe('Bitwise Operation Tests', () => {
     });
   });
 
-  describe('additionMod32 function for SHA-256', () => {
+  describe('additionMod32 SHA256 function tests', () => {
     test('should correctly do addition mod 32 for 2 random 32-bit Fields', () => {
       const random32BitBigints = Array.from({ length: 2 }, () =>
-        Number(getRandomBytes(4))
+        Number(generateRandomBytes(4))
       );
       const [r1, r2] = random32BitBigints;
       const actual = bitwiseAdditionMod32Field(Field(r1), Field(r2)).toBigInt();
@@ -366,7 +365,7 @@ describe('Bitwise Operation Tests', () => {
     test('should correctly do addition mod 32 for 2 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
         let random32BitBigints = Array.from({ length: 2 }, () =>
-          Number(getRandomBytes(4))
+          Number(generateRandomBytes(4))
         );
         let [r1, r2] = random32BitBigints;
         let actual = bitwiseAdditionMod32Field(Field(r1), Field(r2)).toBigInt();
@@ -378,7 +377,7 @@ describe('Bitwise Operation Tests', () => {
 
     test('should correctly do addition mod 32 for 3 random 32-bit Fields', () => {
       const random32BitBigints = Array.from({ length: 3 }, () =>
-        Number(getRandomBytes(4))
+        Number(generateRandomBytes(4))
       );
       const [r1, r2, r3] = random32BitBigints;
       const actual = bitwiseAdditionMod32Field(
@@ -394,7 +393,7 @@ describe('Bitwise Operation Tests', () => {
     test('should correctly do addition mod 32 for 3 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
         let random32BitBigints = Array.from({ length: 3 }, () =>
-          Number(getRandomBytes(4))
+          Number(generateRandomBytes(4))
         );
         let [r1, r2, r3] = random32BitBigints;
         let actual = bitwiseAdditionMod32Field(

@@ -1,7 +1,13 @@
 import { Field, Bool } from 'o1js';
 
+/**
+ * This type refers to a string that contains a sequence of '0's and '1' which is the binary representation of a number or an UTF-8 encoded native string ty
+ */
 type BinaryString = string;
 
+/**
+ * Convert a field element from o1js into a BinaryString
+ */
 function fieldToBinary(field: Field): BinaryString {
   const binaryField = field
     .toBits(32)
@@ -14,8 +20,10 @@ function fieldToBinary(field: Field): BinaryString {
   return binaryField;
 }
 
-// Convert Binary to Hexadecimal number
-function binaryToHex(x: string): string {
+/**
+ *  Convert a BinaryString into Hexadecimal
+ */
+function binaryToHex(x: BinaryString): string {
   let result = '';
   for (let i = 0; i < x.length; i += 4) {
     result += parseInt(x.substring(i, i + 4), 2).toString(16);
@@ -34,8 +42,7 @@ function isBinaryString(input: string | number): boolean {
 }
 
 /**
- *  This function is used in the preprocessing of a string input of the SHA256 hash function.
- *  Convert a binary number from string type such as '010110' into an array of Bool --> [Bool(false), Bool(true), Bool(false), Bool(true), Bool(true), Bool(false)]
+ *  Convert a BinaryString into an array of o1js Bool type: [Bool(false), Bool(true), Bool(false), Bool(true), Bool(true), Bool(false)]
  */
 function binaryStringToBoolArray(binaryString: BinaryString): Bool[] {
   const boolArray: Bool[] = [];
@@ -54,6 +61,9 @@ function binaryStringToBoolArray(binaryString: BinaryString): Bool[] {
   return boolArray;
 }
 
+/**
+ * Convert a string or number into binary as an array of o1js Bool type.
+ */
 function toBoolArray<T extends string | number>(input: T): Bool[] {
   if (typeof input === 'string') {
     /// UTF-8 encode a string and convert the binary string into an o1js Bool type array.
@@ -77,7 +87,7 @@ function toBoolArray<T extends string | number>(input: T): Bool[] {
 }
 
 /**
- * Convert an array of o1js Bool type into a binary string type
+ * Convert an array of o1js Bool type into a binary string type.
  */
 function boolArrayToBinaryString(input: Bool[]): BinaryString {
   return input
@@ -89,6 +99,9 @@ function boolArrayToBinaryString(input: Bool[]): BinaryString {
     .join('');
 }
 
+/**
+ * Convert a number or string input into a BinaryString.
+ */
 function toBinaryString(input: string | number): BinaryString {
   return boolArrayToBinaryString(toBoolArray(input));
 }
