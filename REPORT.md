@@ -101,3 +101,15 @@
     - Refactor preprocessing tests
     - Refactor sha256 tests
     - Fix notations and make them more readable
+
+### DAY8: 18th December
+- Seperate utility functions to be binary & test specific
+    - **utils.ts** is renamed as `binary-utils.ts`.
+    - `generateRandom{Number, String, Input}` functions are moved from **binary-utils.ts** to **test-utils.ts**
+    - `nodeHash` and `o1jsHash` functions are moved from **sha256.test.ts** to **test-utils.ts** file.
+- Add **command.ts** file that logs the digest & execution time for `{ o1js, node, noble}Hash` functions.  
+    - `npm run build && node build/src/command.js {INPUT}` to run the file and hash an input in the cli directly.
+    - Add `nodeHash` function imported from [noble-hashes package](https://www.npmjs.com/package/@noble/hashes) to compare o1js hash function compared to its renown efficiency.
+        - Note: For now it seems that o1js hash function is 100 slower than node or noble's!
+        - TODO: This will be a future optimization work in the month of January for the Mina navigator program.
+- Start polishing binary-utils and bitwise tests
