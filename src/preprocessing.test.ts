@@ -3,9 +3,9 @@ import { H } from './constants';
 import {
   fieldToBinary,
   toBinaryString,
-  generateRandomString,
   boolArrayToBinaryString,
-} from './utils';
+} from './binary-utils';
+import { generateRandomString } from './test-utils';
 
 // UTF8-encode
 // Padding

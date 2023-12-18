@@ -1,5 +1,5 @@
 import { Field, Bool } from 'o1js';
-import { toBoolArray, binaryStringToBoolArray } from './utils.js';
+import { toBoolArray, binaryStringToBoolArray } from './binary-utils.js';
 
 function padding(input: string): Bool[] {
   let input_binary = toBoolArray(input);

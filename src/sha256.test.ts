@@ -1,19 +1,4 @@
-import { createHash } from 'crypto';
-import { sha256 } from './index';
-import { generateRandomInput, binaryToHex, fieldToBinary } from './utils';
-
-// Create a string hash
-function nodeHash(input: string): string {
-  return createHash('sha256').update(input).digest('hex');
-}
-
-function o1jsHash(input: string): string {
-  const digest = sha256(input);
-  const digestBinary = digest.map(fieldToBinary).join('');
-  const digestHex = binaryToHex(digestBinary);
-
-  return digestHex;
-}
+import { o1jsHash, nodeHash, generateRandomInput } from './test-utils';
 
 // NIST test vectors (https://www.di-mgt.com.au/sha_testvectors.html)
 // Note: - Input message: one million (1,000,000) repetitions of the character "a" (0x61).
