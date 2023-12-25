@@ -9,9 +9,9 @@ import {
   SIGMA1,
   bitwiseAdditionMod32 as bitwiseAdditionMod32Field,
 } from './functions';
-import {} from './preprocessing';
+
 import { Field } from 'o1js';
-import * as crypto from 'crypto';
+import { generateRandomBytes } from './test-utils';
 
 const TWO32 = 2n ** 32n;
 
@@ -28,382 +28,359 @@ function shiftRight(value: number, shift: number): bigint {
   return BigInt(shifted);
 }
 
-function choice(x: number, y: number, z: number): bigint {
-  const out = (x & y) ^ (~x & z);
-  let outBig = BigInt(out);
-  if (outBig < 0n) outBig += TWO32;
-
-  return outBig;
-}
-
-function majority(x: number, y: number, z: number): bigint {
-  const out = (x & y) ^ (x & z) ^ (y & z);
-  let outBig = BigInt(out);
-  if (outBig < 0n) outBig += TWO32;
-
-  return outBig;
-}
-
-function σ0(x: number): bigint {
-  return rotateRight(x, 7) ^ rotateRight(x, 18) ^ shiftRight(x, 3);
-}
-
-function σ1(x: number): bigint {
-  return rotateRight(x, 17) ^ rotateRight(x, 19) ^ shiftRight(x, 10);
-}
-
-function Σ0(x: number): bigint {
-  return rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
-}
-
-function Σ1(x: number): bigint {
-  return rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25);
-}
-
-function generateRandomBytes(byteNumber: number): bigint {
-  // Generate 4 random bytes
-  const randomBytes = crypto.randomBytes(byteNumber);
-  return BigInt('0x' + randomBytes.toString('hex'));
-}
-
-function additionMod32(...args: number[]): bigint {
-  const out = args.reduce((result, value) => (result + value) | 0, 0);
-  let outBig = BigInt(out);
-  if (outBig < 0n) outBig += TWO32;
-
-  return outBig;
-}
-
 describe('Bitwise Operation Tests', () => {
   describe('Rotate Right bitwise function tests', () => {
-    test('should correctly rotate a random 32-bit integer to the right by a random number of bits', () => {
-      const input = generateRandomBytes(4);
-      const rotationBits = Number(generateRandomBytes(1) % 32n);
-      const rotated_actual = RotR(Field(input), rotationBits).toBigInt();
-      const rotated_expected = BigInt(rotateRight(Number(input), rotationBits));
-
-      expect(rotated_actual).toBe(rotated_expected);
-    });
-
-    test('should correctly rotate a random 32-bit integer to the right by a random number of bits - 1000 ITERATIONS', () => {
-      for (let i = 0; i < 1000; i++) {
-        let input = generateRandomBytes(4);
-        let rotationBits = Number(generateRandomBytes(1) % 32n);
-        let rotated_actual = RotR(Field(input), rotationBits).toBigInt();
-        let rotated_expected = BigInt(rotateRight(Number(input), rotationBits));
-
-        expect(rotated_actual).toBe(rotated_expected);
+    /**
+     * Test the o1js compatible rotate right function against a verified rotateRight function in native JS.
+     */
+    const testRotateRight = (
+      input = generateRandomBytes(),
+      rotationBits = Number(generateRandomBytes(1) % 32n),
+      specific = false,
+      rotrExpected?: bigint
+    ) => {
+      const rotrActual = RotR(Field(input), rotationBits).toBigInt();
+      if (specific) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        expect(rotrActual).toBe(rotrExpected!);
+      } else {
+        rotrExpected = BigInt(rotateRight(Number(input), rotationBits));
+        expect(rotrActual).toBe(rotrExpected);
       }
+    };
+
+    describe('Tests with random data', () => {
+      test('should correctly rotate a random 32-bit integer to the right by a random number of bits', () => {
+        testRotateRight();
+      });
+
+      test('should correctly rotate a random 32-bit integer to the right by a random number of bits - 1000 ITERATIONS', () => {
+        for (let i = 0; i < 1000; i++) testRotateRight();
+      });
+
+      test('should handle rotation by 0 bits - 1000 ITERATIONS', () => {
+        for (let i = 0; i < 1000; i++) {
+          const input = generateRandomBytes();
+          testRotateRight(input, 0, true, input);
+        }
+      });
+
+      test('should handle rotation by a multiple of 32 bits - 1000 ITERATIONS', () => {
+        for (let i = 0; i < 1000; i++) {
+          const input = generateRandomBytes();
+          testRotateRight(input, 32, true, input);
+        }
+      });
     });
 
-    test('should rotate 0x80000000 to the right by 1 bit', () => {
-      const input = Field(0x80000000);
-      const rotated_actual = RotR(input, 1).toBigInt();
-      const rotated_expected = BigInt(0x40000000);
+    describe('Tests with specifc data against expected results', () => {
+      test('should rotate 0x80000000 to the right by 1 bit', () => {
+        const input = BigInt(0x80000000);
+        const rotrExpected = BigInt(0x40000000);
 
-      expect(rotated_actual).toBe(rotated_expected);
-    });
+        testRotateRight(input, 1, true, rotrExpected);
+      });
 
-    test('should rotate 0xFFFFFFFF (all bits set) to the right by 16 bits', () => {
-      const input = Field(0xffffffff);
-      const rotated_actual = RotR(input, 16).toBigInt();
-      const rotated_expected = BigInt(0xffffffff);
+      test('should rotate 0xFFFFFFFF (all bits set) to the right by 16 bits', () => {
+        const input = BigInt(0xffffffff);
+        const rotrExpected = BigInt(0xffffffff);
 
-      expect(rotated_actual).toBe(rotated_expected);
-    });
+        testRotateRight(input, 16, true, rotrExpected);
+      });
 
-    test('should rotate 0xABCDEF12 to the right by 4 bits', () => {
-      const input = Field(0xabcdef12);
-      const rotated_actual = RotR(input, 4).toBigInt();
-      const rotated_expected = BigInt(0x2abcdef1);
+      test('should rotate 0xABCDEF12 to the right by 4 bits', () => {
+        const input = BigInt(0xabcdef12);
+        const rotrExpected = BigInt(0x2abcdef1);
 
-      expect(rotated_actual).toBe(rotated_expected);
-    });
+        testRotateRight(input, 4, true, rotrExpected);
+      });
 
-    test('should handle rotation by 0 bits', () => {
-      const input = Field(0x12345678);
-      const rotated_actual = RotR(input, 0).toBigInt();
-      const rotated_expected = BigInt(0x12345678);
+      test('should rotate 1 to the right by 1 bit', () => {
+        const input = BigInt(1);
+        const rotrExpected = BigInt(0x80000000);
 
-      expect(rotated_actual).toBe(rotated_expected);
-    });
+        testRotateRight(input, 1, true, rotrExpected);
+      });
 
-    test('should handle rotation by a multiple of 32 bits', () => {
-      const input = Field(0xabcdef12);
-      const rotated_actual = RotR(input, 32).toBigInt();
-      const rotated_expected = BigInt(0xabcdef12);
+      test('should rotate 0xAAAAAAAA to the right by 2 bits', () => {
+        const input = BigInt(0xaaaaaaaa);
+        const rotrExpected = BigInt(0xaaaaaaaa);
 
-      expect(rotated_actual).toBe(rotated_expected);
-    });
-
-    test('should rotate 0xABCDEF12 to the right by 4 bits', () => {
-      const input = Field(0xabcdef12);
-      const rotated_actual = RotR(input, 4).toBigInt();
-      const rotated_expected = Field(0x2abcdef1);
-
-      expect(rotated_actual).toBe(rotated_expected.toBigInt());
-    });
-
-    test('should rotate 1 to the right by 1 bit', () => {
-      const input = Field(1);
-      const rotated_actual = RotR(input, 1).toBigInt();
-      const rotated_expected = BigInt(0x80000000);
-
-      expect(rotated_actual).toBe(rotated_expected);
-    });
-
-    test('should rotate 0xAAAAAAAA to the right by 2 bits', () => {
-      const input = Field(0xaaaaaaaa);
-      const rotated_actual = RotR(input, 2).toBigInt();
-      const rotated_expected = BigInt(0xaaaaaaaa);
-
-      expect(rotated_actual).toBe(rotated_expected);
-    });
-
-    test('should handle rotation by a multiple of 32 bits', () => {
-      const input = Field(0xabcdef12);
-      const rotated_actual = RotR(input, 32).toBigInt();
-      const rotated_expected = BigInt(0xabcdef12);
-
-      expect(rotated_actual).toBe(rotated_expected); // No change expected
+        testRotateRight(input, 2, true, rotrExpected);
+      });
     });
   });
 
   describe('Shift Right bitwise function tests', () => {
-    test('should correctly shift a random 32-bit integer to the right by a random number of bits', () => {
-      const input = generateRandomBytes(4);
-      const rotationBits = Number(generateRandomBytes(1) % 32n);
-      const shifted_actual = ShR(Field(input), rotationBits).toBigInt();
-      const shifted_expected = BigInt(shiftRight(Number(input), rotationBits));
+    /**
+     * Test the o1js compatible shift right function against a verified shiftRight function in native JS.
+     */
+    const testShiftRight = (
+      input = generateRandomBytes(),
+      shiftBits = Number(generateRandomBytes(1) % 32n),
+      specific = false,
+      shrExpected?: bigint
+    ) => {
+      const shrActual = ShR(Field(input), shiftBits).toBigInt();
+      if (specific) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        expect(shrActual).toBe(shrExpected!);
+      } else {
+        shrExpected = shiftRight(Number(input), shiftBits);
+        expect(shrActual).toBe(shrExpected);
+      }
+    };
 
-      expect(shifted_actual).toBe(shifted_expected);
+    test('should correctly shift a random 32-bit integer to the right by a random number of bits', () => {
+      testShiftRight();
     });
 
     test('should correctly shift a random 32-bit integer to the right by a random number of bits - 1000 ITERATIONS', () => {
-      for (let i = 0; i < 1000; i++) {
-        let input = generateRandomBytes(4);
-        let rotationBits = Number(generateRandomBytes(1) % 32n);
-        let rotated_actual = RotR(Field(input), rotationBits).toBigInt();
-        let rotated_expected = BigInt(rotateRight(Number(input), rotationBits));
+      for (let i = 0; i < 1000; i++) testShiftRight();
+    });
 
-        expect(rotated_actual).toBe(rotated_expected);
+    test('should handle shifting by 0 bits - 1000 ITERATIONS', () => {
+      for (let i = 0; i < 1000; i++) {
+        let input = generateRandomBytes();
+        testShiftRight(input, 0, true, input);
       }
     });
 
-    test('should shift 0x80000000 to the right by 1 bit', () => {
-      const input = Field(0xffffffff);
-      const shifted_actual = ShR(input, 16).toBigInt();
-      const shifted_expected = BigInt(0x0000ffff);
+    test('should shift 0x80000000 to the right by 16 bit', () => {
+      const input = BigInt(0xffffffff);
+      const shrExpected = BigInt(0x0000ffff);
 
-      expect(shifted_actual).toBe(shifted_expected);
-    });
-
-    test('should handle shifting by 0 bits', () => {
-      const input = Field(0x12345678);
-      const shifted_actual = ShR(input, 0).toBigInt();
-      const shifted_expected = BigInt(0x12345678);
-
-      expect(shifted_actual).toBe(shifted_expected);
+      testShiftRight(input, 16, true, shrExpected);
     });
   });
 
   describe('Choice: Ch bitwise function tests', () => {
-    test('should return correct result for Ch(0xABCDEF12, 0x12345678, 0x87654321)', () => {
-      const actual = ch(
-        Field(0xabcdef12),
-        Field(0x12345678),
-        Field(0x87654321)
-      ).toBigInt();
-      const expected = choice(0xabcdef12, 0x12345678, 0x87654321);
+    /**
+     * Bitwise choice function in native JS
+     */
+    const choice = (x: number, y: number, z: number): bigint => {
+      let out = BigInt((x & y) ^ (~x & z));
+      if (out < 0n) out += TWO32;
+
+      return out;
+    };
+
+    /**
+     * Test the o1js compatible choice bitwise function against its verified version in native JS.
+     */
+    const testChoice = (inputs: [number, number, number]) => {
+      const [in1, in2, in3] = inputs.map(Field);
+      const actual = ch(in1, in2, in3).toBigInt();
+      const expected = choice(...inputs);
 
       expect(actual).toBe(expected);
+    };
+
+    test('should return correct result for Ch(0xABCDEF12, 0x12345678, 0x87654321)', () => {
+      testChoice([0xabcdef12, 0x12345678, 0x87654321]);
     });
 
     test('should correctly have choice of 3 random 32-bit Fields', () => {
-      const random32BitBigints = Array.from({ length: 3 }, () =>
-        Number(generateRandomBytes(4))
-      );
-      const [r1, r2, r3] = random32BitBigints;
-      const actual = ch(Field(r1), Field(r2), Field(r3)).toBigInt();
-      const expected = choice(r1, r2, r3);
-
-      expect(actual).toBe(expected);
+      const random32BitInputs = Array.from({ length: 3 }, () =>
+        Number(generateRandomBytes())
+      ) as [number, number, number];
+      testChoice(random32BitInputs);
     });
 
     test('should correctly have choice of 3 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitBigints = Array.from({ length: 3 }, () =>
-          Number(generateRandomBytes(4))
-        );
-        let [r1, r2, r3] = random32BitBigints;
-        let actual = ch(Field(r1), Field(r2), Field(r3)).toBigInt();
-        let expected = choice(r1, r2, r3);
-
-        expect(actual).toBe(expected);
+        let random32BitInputs = Array.from({ length: 3 }, () =>
+          Number(generateRandomBytes())
+        ) as [number, number, number];
+        testChoice(random32BitInputs);
       }
     });
   });
 
   describe('Majority: Maj bitwise function tests', () => {
-    test('should correctly have majority of 3 random 32-bit Fields', () => {
-      const random32BitBigints = Array.from({ length: 3 }, () =>
-        Number(generateRandomBytes(4))
-      );
-      const [r1, r2, r3] = random32BitBigints;
-      const actual = maj(Field(r1), Field(r2), Field(r3)).toBigInt();
-      const expected = majority(r1, r2, r3);
+    /**
+     * Bitwise majority function in native JS
+     */
+    const majority = (x: number, y: number, z: number): bigint => {
+      let out = BigInt((x & y) ^ (x & z) ^ (y & z));
+      if (out < 0n) out += TWO32;
+
+      return out;
+    };
+
+    /**
+     * Test the o1js compatible majority bitwise function against its verified version in native JS.
+     */
+    const testMajority = (inputs: [number, number, number]) => {
+      const [in1, in2, in3] = inputs.map(Field);
+      const actual = maj(in1, in2, in3).toBigInt();
+      const expected = majority(...inputs);
 
       expect(actual).toBe(expected);
+    };
+
+    test('should correctly have majority of 3 random 32-bit Fields', () => {
+      const random32BitInputs = Array.from({ length: 3 }, () =>
+        Number(generateRandomBytes())
+      ) as [number, number, number];
+      testMajority(random32BitInputs);
     });
 
     test('should correctly have majority of 3 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitBigints = Array.from({ length: 3 }, () =>
-          Number(generateRandomBytes(4))
-        );
-        let [r1, r2, r3] = random32BitBigints;
-        let actual = maj(Field(r1), Field(r2), Field(r3)).toBigInt();
-        let expected = majority(r1, r2, r3);
-
-        expect(actual).toBe(expected);
+        let random32BitInputs = Array.from({ length: 3 }, () =>
+          Number(generateRandomBytes())
+        ) as [number, number, number];
+        testMajority(random32BitInputs);
       }
     });
   });
 
   describe('σ0: small sigma0 SHA256 bitwise function tests', () => {
-    test('should correctly sigma0 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(generateRandomBytes(4));
-      const actual = sigma0(Field(random32BitNumber)).toBigInt();
-      const expected = BigInt(σ0(random32BitNumber));
+    const σ0 = (x: number): bigint => {
+      return rotateRight(x, 7) ^ rotateRight(x, 18) ^ shiftRight(x, 3);
+    };
+
+    const testσ0 = (input: bigint) => {
+      const actual = sigma0(Field(input)).toBigInt();
+      const expected = σ0(Number(input));
 
       expect(actual).toBe(expected);
+    };
+
+    test('should correctly sigma0 of a random 32-bit Fields', () => {
+      const random32BitInput = generateRandomBytes();
+      testσ0(random32BitInput);
     });
 
     test('should correctly sigma0 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(generateRandomBytes(4));
-        let actual = sigma0(Field(random32BitNumber)).toBigInt();
-        let expected = BigInt(σ0(random32BitNumber));
-
-        expect(actual).toBe(expected);
+        const random32BitInput = generateRandomBytes();
+        testσ0(random32BitInput);
       }
     });
   });
 
   describe('σ1: small sigma1 SHA256 bitwise function tests', () => {
-    test('should correctly sigma1 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(generateRandomBytes(4));
-      const actual = sigma1(Field(random32BitNumber)).toBigInt();
-      const expected = BigInt(σ1(random32BitNumber));
+    const σ1 = (x: number): bigint => {
+      return rotateRight(x, 17) ^ rotateRight(x, 19) ^ shiftRight(x, 10);
+    };
+
+    const testσ1 = (input: bigint) => {
+      const actual = sigma1(Field(input)).toBigInt();
+      const expected = σ1(Number(input));
 
       expect(actual).toBe(expected);
+    };
+
+    test('should correctly sigma1 of a random 32-bit Fields', () => {
+      const random32BitInput = generateRandomBytes();
+      testσ1(random32BitInput);
     });
 
     test('should correctly sigma1 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(generateRandomBytes(4));
-        let actual = sigma1(Field(random32BitNumber)).toBigInt();
-        let expected = BigInt(σ1(random32BitNumber));
-
-        expect(actual).toBe(expected);
+        let random32BitInput = generateRandomBytes();
+        testσ1(random32BitInput);
       }
     });
   });
 
   describe('Σ0: big SIGMA0 SHA256 bitwise function tests', () => {
-    test('should correctly SIGMA0 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(generateRandomBytes(4));
-      const actual = SIGMA0(Field(random32BitNumber)).toBigInt();
-      const expected = BigInt(Σ0(random32BitNumber));
+    const Σ0 = (x: number): bigint => {
+      return rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22);
+    };
+
+    const testΣ0 = (input: bigint) => {
+      const actual = SIGMA0(Field(input)).toBigInt();
+      const expected = Σ0(Number(input));
 
       expect(actual).toBe(expected);
+    };
+
+    test('should correctly SIGMA0 of a random 32-bit Fields', () => {
+      const random32BitInput = generateRandomBytes();
+      testΣ0(random32BitInput);
     });
 
     test('should correctly SIGMA0 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(generateRandomBytes(4));
-        let actual = SIGMA0(Field(random32BitNumber)).toBigInt();
-        let expected = BigInt(Σ0(random32BitNumber));
-
-        expect(actual).toBe(expected);
+        const random32BitInput = generateRandomBytes();
+        testΣ0(random32BitInput);
       }
     });
   });
 
   describe('Σ1: big SIGMA1 SHA256 bitwise function tests', () => {
-    test('should correctly SIGMA1 of a random 32-bit Fields', () => {
-      const random32BitNumber = Number(generateRandomBytes(4));
-      const actual = SIGMA1(Field(random32BitNumber)).toBigInt();
-      const expected = BigInt(Σ1(random32BitNumber));
+    const Σ1 = (x: number): bigint => {
+      return rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25);
+    };
+
+    const testΣ1 = (input: bigint) => {
+      const actual = SIGMA1(Field(input)).toBigInt();
+      const expected = Σ1(Number(input));
 
       expect(actual).toBe(expected);
+    };
+
+    test('should correctly SIGMA1 of a random 32-bit Fields', () => {
+      const random32BitInput = generateRandomBytes();
+      testΣ1(random32BitInput);
     });
 
     test('should correctly SIGMA1 of a random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitNumber = Number(generateRandomBytes(4));
-        let actual = SIGMA1(Field(random32BitNumber)).toBigInt();
-        let expected = BigInt(Σ1(random32BitNumber));
-
-        expect(actual).toBe(expected);
+        let random32BitInput = generateRandomBytes();
+        testΣ1(random32BitInput);
       }
     });
   });
 
-  describe('additionMod32 SHA256 function tests', () => {
-    test('should correctly do addition mod 32 for 2 random 32-bit Fields', () => {
-      const random32BitBigints = Array.from({ length: 2 }, () =>
-        Number(generateRandomBytes(4))
-      );
-      const [r1, r2] = random32BitBigints;
-      const actual = bitwiseAdditionMod32Field(Field(r1), Field(r2)).toBigInt();
-      const expected = additionMod32(r1, r2);
+  describe('bitwiseAdditionMod32 SHA256 function tests', () => {
+    const additionMod32 = (...args: number[]): bigint => {
+      const out = args.reduce((result, value) => (result + value) | 0, 0);
+      let outBig = BigInt(out);
+      if (outBig < 0n) outBig += TWO32;
+
+      return outBig;
+    };
+
+    const testAdditionMod32 = (inputs: number[]) => {
+      const actual = bitwiseAdditionMod32Field(...inputs.map(Field)).toBigInt();
+      const expected = additionMod32(...inputs);
 
       expect(actual).toBe(expected);
+    };
+
+    test('should correctly do addition mod 32 for 2 random 32-bit Fields', () => {
+      const random32BitInputs = Array.from({ length: 2 }, () =>
+        Number(generateRandomBytes())
+      );
+      testAdditionMod32(random32BitInputs);
     });
 
     test('should correctly do addition mod 32 for 2 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitBigints = Array.from({ length: 2 }, () =>
-          Number(generateRandomBytes(4))
+        let random32BitInputs = Array.from({ length: 2 }, () =>
+          Number(generateRandomBytes())
         );
-        let [r1, r2] = random32BitBigints;
-        let actual = bitwiseAdditionMod32Field(Field(r1), Field(r2)).toBigInt();
-        let expected = additionMod32(r1, r2);
-
-        expect(actual).toBe(expected);
+        testAdditionMod32(random32BitInputs);
       }
     });
 
     test('should correctly do addition mod 32 for 3 random 32-bit Fields', () => {
-      const random32BitBigints = Array.from({ length: 3 }, () =>
-        Number(generateRandomBytes(4))
+      const random32BitInputs = Array.from({ length: 3 }, () =>
+        Number(generateRandomBytes())
       );
-      const [r1, r2, r3] = random32BitBigints;
-      const actual = bitwiseAdditionMod32Field(
-        Field(r1),
-        Field(r2),
-        Field(r3)
-      ).toBigInt();
-      const expected = additionMod32(r1, r2, r3);
-
-      expect(actual).toBe(expected);
+      testAdditionMod32(random32BitInputs);
     });
 
     test('should correctly do addition mod 32 for 3 random 32-bit Fields - 1000 ITERATIONS', () => {
       for (let i = 0; i < 1000; i++) {
-        let random32BitBigints = Array.from({ length: 3 }, () =>
-          Number(generateRandomBytes(4))
+        let random32BitInputs = Array.from({ length: 3 }, () =>
+          Number(generateRandomBytes())
         );
-        let [r1, r2, r3] = random32BitBigints;
-        let actual = bitwiseAdditionMod32Field(
-          Field(r1),
-          Field(r2),
-          Field(r3)
-        ).toBigInt();
-        let expected = additionMod32(r1, r2, r3);
-
-        expect(actual).toBe(expected);
+        testAdditionMod32(random32BitInputs);
       }
     });
   });
