@@ -113,3 +113,25 @@
         - Note: For now it seems that o1js hash function is 100 slower than node or noble's!
         - TODO: This will be a future optimization work in the month of January for the Mina navigator program.
 - Start polishing binary-utils and bitwise tests
+
+### DAY9: 19th & 26th December
+- Refactor bitwise tests 
+    - Utilize testing function that test o1js compatible functions against native TS/JS verified functions.
+        - Improves readability.
+        - Reduces lines of code.
+    - Move TS/JS tester bitwise functions inside each testing block.
+    - Move helper bitwise functions to `test-utils.ts`
+    - Polish code by improving notations here and there.
+- Check and do small refinements to `preprocess.test.ts`.
+- Refactor sha256 tests 
+- Adapt `test-utils.ts` file to the tests changes.
+    - Organize functions
+    - Document code for better organized/understandable functionality 
+- This step is very important to proceed optimizing code in the next month
+    - Tests should be readable and easy to understand.
+    - Any change should be detectable in tests.
+    - Tests should be polished with no additional work required for the next stage.
+- TODO: 
+    - Polish {functions, preprocess}.ts notations.
+    - Add smart contract interaction example/tests
+   
