@@ -11,22 +11,12 @@ import {
 } from './functions';
 
 import { Field } from 'o1js';
-import { generateRandomBytes } from './test-utils';
-
-const TWO32 = 2n ** 32n;
-
-function rotateRight(x: number, n: number): bigint {
-  const rotated = (x >>> n) | (x << (32 - n));
-  let rotatedBig = BigInt(rotated);
-  if (rotatedBig < 0n) rotatedBig += TWO32;
-
-  return rotatedBig;
-}
-
-function shiftRight(value: number, shift: number): bigint {
-  const shifted = value >>> shift;
-  return BigInt(shifted);
-}
+import {
+  TWO32,
+  generateRandomBytes,
+  rotateRight,
+  shiftRight,
+} from './test-utils';
 
 describe('Bitwise Operation Tests', () => {
   describe('Rotate Right bitwise function tests', () => {

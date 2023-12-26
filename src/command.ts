@@ -34,8 +34,20 @@ const nobleDigest = nobleHash(input);
 nobleTimer.end();
 
 console.table([
-    { Step: 'Input', Value: input },
-    { Step: 'o1js Hash', Hash: o1jsDigest, 'Execution Time': o1jsTimer.executionTime },
-    { Step: 'node Hash', Hash: nodeDigest, 'Execution Time': nodeTimer.executionTime },
-    { Step: 'noble Hash', Hash: nobleDigest, 'Execution Time': nobleTimer.executionTime },
+  { Step: 'Input', Value: input },
+  {
+    Step: 'o1js Hash',
+    Hash: o1jsDigest,
+    'Execution Time': o1jsTimer.executionTime,
+  },
+  {
+    Step: 'node Hash',
+    Hash: nodeDigest,
+    'Execution Time': nodeTimer.executionTime,
+  },
+  {
+    Step: 'noble Hash',
+    Hash: nobleDigest,
+    'Execution Time': nobleTimer.executionTime,
+  },
 ]);
