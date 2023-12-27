@@ -20,11 +20,12 @@ function padding(input: string): Bool[] {
 }
 
 // Parsing the message to obtain N-512 bit blocks
-function parsing512(bits: Bool[]): Bool[][] {
+function parsing512(bits: Field[]): Bool[][] {
+  let bitsBool = bits.map(f => f.toBits(128).reverse()).flat();
   const N: Bool[][] = [];
 
   for (let i = 0; i < bits.length; i += 512) {
-    const block: Bool[] = bits.slice(i, i + 512);
+    const block: Bool[] = bitsBool.slice(i, i + 512);
     N.push(block);
   }
   // assert(N.length === Math.ceil(bits.length / 512), 'block length error');

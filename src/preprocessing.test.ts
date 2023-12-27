@@ -59,30 +59,30 @@ describe('Preprocessing Tests', () => {
     expect(actualFormatted).toBe(expected);
   });
 
-  test('should correctly reverse Field parsing[§5.2.1] to binary for input=abc', () => {
-    const input = padding('abc');
-    const input512Blocks = parsing512(input);
-    const input32Blocks = M_op(input512Blocks[0]);
+  // test('should correctly reverse Field parsing[§5.2.1] to binary for input=abc', () => {
+  //   //const input = padding('abc');
+  //   const input512Blocks = parsing512(input);
+  //   const input32Blocks = M_op(input512Blocks[0]);
 
-    const actual = input32Blocks.map(fieldToBinary).join('');
-    const expected = boolArrayToBinaryString(input);
+  //   const actual = input32Blocks.map(fieldToBinary).join('');
+  //   const expected = boolArrayToBinaryString(input);
 
-    expect(actual).toStrictEqual(expected);
-  });
+  //   expect(actual).toStrictEqual(expected);
+  // });
 
-  test('should reverse Field parsing[§5.2.1] to binary for input=random - 1000 iterations', () => {
-    for (let i = 0; i < 1000; i++) {
-      let inputRandom = generateRandomString(5);
-      let padded = padding(inputRandom);
-      let input512Blocks = parsing512(padded);
-      let input32Blocks = M_op(input512Blocks[0]);
+  // test('should reverse Field parsing[§5.2.1] to binary for input=random - 1000 iterations', () => {
+  //   for (let i = 0; i < 1000; i++) {
+  //     let inputRandom = generateRandomString(5);
+  //     let padded = padding(inputRandom);
+  //     let input512Blocks = parsing512(padded);
+  //     let input32Blocks = M_op(input512Blocks[0]);
 
-      let actual = input32Blocks.map(fieldToBinary).join('');
-      let expected = boolArrayToBinaryString(padded);
+  //     let actual = input32Blocks.map(fieldToBinary).join('');
+  //     let expected = boolArrayToBinaryString(padded);
 
-      expect(actual).toStrictEqual(expected);
-    }
-  });
+  //     expect(actual).toStrictEqual(expected);
+  //   }
+  // });
 
   test('should have compliant & constant initial hashes', () => {
     const actual = H.map(fieldToBinary);

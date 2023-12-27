@@ -1,4 +1,5 @@
 import { Field, Bool } from 'o1js';
+import { padding } from './preprocessing';
 
 /**
  * This type refers to a string that contains a sequence of '0's and '1' which is the binary representation of a number or an UTF-8 encoded native string ty
@@ -86,6 +87,21 @@ function toBoolArray<T extends string | number>(input: T): Bool[] {
   }
 }
 
+//TODO: Add documentation
+function parseHashInput(input: string): Field[] {
+  const paddedInput = padding(input);
+  const inputFieldArray = new Array<Field>();
+
+  for (let i = 0; i < 512; i += 128) {
+    let slice128 = paddedInput.slice(i, i + 128);
+    // Provable.log('slice128: ', slice128)
+    // reverse to convert BE to LE convention
+    inputFieldArray.push(Field.fromBits(slice128.reverse()));
+  }
+
+  return inputFieldArray;
+}
+
 /**
  * Convert an array of o1js Bool type into a binary string type.
  */
@@ -113,4 +129,5 @@ export {
   toBinaryString,
   binaryStringToBoolArray,
   boolArrayToBinaryString,
+  parseHashInput,
 };
