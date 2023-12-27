@@ -108,13 +108,13 @@
     - `generateRandom{Number, String, Input}` functions are moved from **binary-utils.ts** to **test-utils.ts**
     - `nodeHash` and `o1jsHash` functions are moved from **sha256.test.ts** to **test-utils.ts** file.
 - Add **command.ts** file that logs the digest & execution time for `{ o1js, node, noble}Hash` functions.  
-    - `npm run build && node build/src/command.js {INPUT}` to run the file and hash an input in the cli directly.
+    - `npm run build && node build/src/command.js <INPUT>` to run the file and hash an input in the cli directly.
     - Add `nodeHash` function imported from [noble-hashes package](https://www.npmjs.com/package/@noble/hashes) to compare o1js hash function compared to its renown efficiency.
         - Note: For now it seems that o1js hash function is 100 slower than node or noble's!
         - TODO: This will be a future optimization work in the month of January for the Mina navigator program.
 - Start polishing binary-utils and bitwise tests
 
-### DAY9: 19th & 26th December
+### DAY9: 19th & 25th December
 - Refactor bitwise tests 
     - Utilize testing function that test o1js compatible functions against native TS/JS verified functions.
         - Improves readability.
@@ -134,4 +134,29 @@
 - TODO: 
     - Polish {functions, preprocess}.ts notations.
     - Add smart contract interaction example/tests
-   
+
+### DAY10: 26-27th December
+- Learn about zkapp smart contracts and interaction.
+- Add the smart contract having inital hash state to be the digest of 'o1js' as input.
+- Set the config to deploy the smart contract.
+- Encounter a deploy error 
+    - error: `Failed to find the "Sha256" smart contract in your build directory.`
+    - Spend time trying to debug the error
+    - Open a question post on discord
+- Restructure the files for better separation of smart contract and the rest of the code.
+- Add interact file called `zkcontract.test.ts`
+    - The code deploys the smart contract locally, sets the initial hash of a preimage, and tests after hash with the contract.   
+    - This file helped me debug the smart contract.
+    - At first the errors were abstract, then adding try/catch blocks helped with more verbose error logs
+    - Adapt the code to have error-free smart contract.
+        - mainly complained about input type => it should be a Field
+        - I am not sure why it complains about `Array\<Field> `or `Array\<Bool>` --> No note found about this statement.
+        - Padding from preprocessing is shifted out of the smart contract since it is one step that parses the input and prepares for the hash circuit.
+        - Padding generates a 512-bit block that's why the hash smart contract input now takes 4 field elements (128-bit each)
+    - Encounter an error `getAccount: Could not find account for public key B62qmHf3f1iKf6wYn9fyiSuW8xiX7DhkqzVpPRX81xYb2RHZEBH5YVk`.
+    - Spend time debugging again
+- This day helped learning about MINA smart contracts but it made me realize that the documentation is scattered and not straightforward about many details.
+    - My knowledge in Circom2 development helped me keep the smart contract in frame but debugging a smart contract is a painful process as compilation errors are not very directive.
+    - The MINA documentation page doesn't include detailed examples about a full process of deployment and other possible options.
+    - There should be a better CLI and Framework for such a process, solana CLI would be a good example.
+    - A seperation of client side interaction tooling, smart contract i.e. circuit developement should clearer regarding that error logs can be too vague.
