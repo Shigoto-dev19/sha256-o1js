@@ -8,14 +8,6 @@
       "feepayerAlias": "shigoto-tester",
       "fee": "0.1",
       "smartContract": "Sha256ZkApp"
-    },
-    "berkeley0": {
-      "url": "https://proxy.berkeley.minaexplorer.com/graphql",
-      "keyPath": "keys/berkeley0.json",
-      "feepayerKeyPath": "/home/shigoto/.cache/zkapp-cli/keys/shigoto-tester.json",
-      "feepayerAlias": "shigoto-tester",
-      "fee": "0.1",
-      "smartContract": "Sha256ZkApp"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { padding, parsing512, M_op } from './preprocessing';
+import { padding, parsing512, M_op, parseSha2Input } from './preprocessing';
 import { H } from './constants';
 import {
   fieldToBinary,
@@ -43,14 +43,14 @@ describe('Preprocessing Tests', () => {
     // append the length as binary
     expected += toBinaryString(24);
 
-    const actual = padding('abc');
+    const actual = padding(parseSha2Input('abc'));
     const actualFormatted = boolArrayToBinaryString(actual);
 
     expect(actualFormatted).toBe(expected);
   });
 
   test('should have correct padding for the string=empty', () => {
-    const actual = padding('');
+    const actual = padding(parseSha2Input(''));
     const actualFormatted = boolArrayToBinaryString(actual);
 
     let expected = '1' + '0'.repeat(511);
@@ -59,30 +59,44 @@ describe('Preprocessing Tests', () => {
     expect(actualFormatted).toBe(expected);
   });
 
-  // test('should correctly reverse Field parsing[§5.2.1] to binary for input=abc', () => {
-  //   //const input = padding('abc');
-  //   const input512Blocks = parsing512(input);
-  //   const input32Blocks = M_op(input512Blocks[0]);
+  test('should correctly reverse Field parsing[§5.2.1] to binary for input=abc', () => {
+    const input = padding(parseSha2Input('abc'));
+    const input512Blocks = parsing512(input);
+    const input32Blocks = M_op(input512Blocks[0]);
 
-  //   const actual = input32Blocks.map(fieldToBinary).join('');
-  //   const expected = boolArrayToBinaryString(input);
+    const actual = input32Blocks.map(fieldToBinary).join('');
+    const expected = boolArrayToBinaryString(input);
 
-  //   expect(actual).toStrictEqual(expected);
-  // });
+    expect(actual).toStrictEqual(expected);
+  });
 
-  // test('should reverse Field parsing[§5.2.1] to binary for input=random - 1000 iterations', () => {
-  //   for (let i = 0; i < 1000; i++) {
-  //     let inputRandom = generateRandomString(5);
-  //     let padded = padding(inputRandom);
-  //     let input512Blocks = parsing512(padded);
-  //     let input32Blocks = M_op(input512Blocks[0]);
+  test('should reverse Field parsing[§5.2.1] to binary for input=random - 1000 iterations', () => {
+    for (let i = 0; i < 1000; i++) {
+      let inputRandom = generateRandomString(5);
+      let padded = padding(parseSha2Input(inputRandom));
+      let input512Blocks = parsing512(padded);
+      let input32Blocks = M_op(input512Blocks[0]);
 
-  //     let actual = input32Blocks.map(fieldToBinary).join('');
-  //     let expected = boolArrayToBinaryString(padded);
+      let actual = input32Blocks.map(fieldToBinary).join('');
+      let expected = boolArrayToBinaryString(padded);
 
-  //     expect(actual).toStrictEqual(expected);
-  //   }
-  // });
+      expect(actual).toStrictEqual(expected);
+    }
+  });
+
+  test('should reverse Field parsing[§5.2.1] to binary for input=randomLong - 1000 iterations', () => {
+    for (let i = 0; i < 1000; i++) {
+      let inputRandom = generateRandomString(100);
+      let padded = padding(parseSha2Input(inputRandom));
+      let input512Blocks = parsing512(padded);
+      let input32Blocks = input512Blocks.map(M_op).flat();
+
+      let actual = input32Blocks.map(fieldToBinary).join('');
+      let expected = boolArrayToBinaryString(padded);
+
+      expect(actual).toStrictEqual(expected);
+    }
+  });
 
   test('should have compliant & constant initial hashes', () => {
     const actual = H.map(fieldToBinary);

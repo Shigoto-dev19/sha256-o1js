@@ -1,5 +1,4 @@
 import { Field } from 'o1js';
-
 import { H as initialHashes, K } from './constants.js';
 import {
   ch,
@@ -11,8 +10,7 @@ import {
   bitwiseAdditionMod32,
 } from './functions.js';
 
-import { padding, parsing512, M_op } from './preprocessing.js';
-import { parseHashInput, toBoolArray } from './binary-utils.js';
+import { padding, parsing512, M_op, parseSha2Input } from './preprocessing.js';
 
 /**
  *
@@ -32,13 +30,18 @@ function W_op(M: Field[]): Field[] {
   return W;
 }
 
+//TODO: make generic function that return two function: one for tests and one for smart contract
 // The SHA-256 function of a string input
-export function sha256(paddedInput = parseHashInput('')): Field[] {
+type InputOptions = Field | string ;
+export function sha256<T extends InputOptions>(input: T): Field[] {
   const H = [...initialHashes];
+  const parsedInput = parseSha2Input(input);
+  // if (typeof input === 'string') parsedInput = Provable.witness(Field[], parseSha2Input(input));
+  // else parsedInput = parseSha2Input(Field(input));
   // pad & parse input
-  // const padded_input = padding(input);
+  const padded_input = padding(parsedInput);
 
-  const N = parsing512(paddedInput);
+  const N = parsing512(padded_input);
   const N_blocks = N.length;
 
   for (let i = 1; i <= N_blocks; i++) {
@@ -77,7 +80,5 @@ export function sha256(paddedInput = parseHashInput('')): Field[] {
     H[6] = bitwiseAdditionMod32(g, H[6]);
     H[7] = bitwiseAdditionMod32(h, H[7]);
   }
-
   return H;
 }
-

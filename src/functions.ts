@@ -1,4 +1,4 @@
-import { Field, Gadgets, Bool } from 'o1js';
+import { Field, Gadgets, Bool, Provable } from 'o1js';
 const TWO32 = new Field(2n ** 32n);
 
 /// A binary rotation right function inspired from the sha256 circuit from circomlib
@@ -91,15 +91,11 @@ function sigma1(x: Field) {
 
 function bitwiseAddition2Mod32(a: Field, b: Field): Field {
   let sum = a.add(b);
-
-  // Check if the sum is greater than or equal to 2^32
-  if (sum.toBigInt() >= TWO32.toBigInt()) {
-    // Subtract 2^32 to handle overflow
-    sum = sum.sub(TWO32);
-  }
-  sum.assertLessThan(TWO32);
-
-  return sum;
+  const out = Provable.witness(Field, () => {
+    return Field(sum.toBigInt() % TWO32.toBigInt())
+  })
+  out.assertLessThan(TWO32);
+  return out
 }
 
 function bitwiseAdditionMod32(...args: Field[]): Field {

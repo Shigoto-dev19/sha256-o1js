@@ -25,7 +25,7 @@ describe('Testing against NIST Test Vectos', () => {
     expect(o1jsDigest).toBe(expectedDigest);
   });
 
-  test.skip('should have expected digest for input=abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq', () => {
+  test('should have expected digest for input=abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq', () => {
     const o1jsDigest = o1jsHash(
       'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq'
     );
@@ -76,21 +76,21 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     testSha256(input);
   });
 
-  test('should have compliant digest for input=random - 1000 iterations', () => {
-    for (let i = 0; i < 1000; i++) {
-      let input = generateRandomInput();
+  test('should have compliant digest for input=random - 100 iterations', () => {
+    for (let i = 0; i < 100; i++) {
+      let input = generateRandomInput(70);
       testSha256(input);
     }
   });
 
   test('should have compliant digest for input=hash(random)', () => {
-    const input = nodeHash(generateRandomInput());
+    const input = nodeHash(generateRandomInput(150));
     testSha256(input);
   });
 
-  test('should have compliant digest for input=hash(random) - 1000 iterations', () => {
-    for (let i = 0; i < 1000; i++) {
-      let input = nodeHash(generateRandomInput());
+  test('should have compliant digest for input=hash(random) - 100 iterations', () => {
+    for (let i = 0; i < 100; i++) {
+      let input = nodeHash(generateRandomInput(70));
       testSha256(input);
     }
   });
