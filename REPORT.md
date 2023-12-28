@@ -160,3 +160,19 @@
     - The MINA documentation page doesn't include detailed examples about a full process of deployment and other possible options.
     - There should be a better CLI and Framework for such a process, solana CLI would be a good example.
     - A seperation of client side interaction tooling, smart contract i.e. circuit developement should clearer regarding that error logs can be too vague.
+
+### DAY11: 28th December
+- Find error about using `field.toBigInt()` inside provable code.
+    - Solve problem with `Provable.witness(Field, callback)` method.
+- Find error about input parsing
+    - should handle multiple 512-bit blocks after adapting code to be smart contract compatible 
+- Add test for preprocessing long inputs after padding(>1 512-bit blocks)
+- Understand the utility of `Provable.witness` & `Provable.asProver`.
+- Fix init smart contract method
+    - Realize that both `init` and `@method` decorator only accept single Field arguments!!
+- Try different method for smart contract deployment
+    - zk contract tests
+    - `main.ts` file for local deplyment
+    - deploy to berkeley testnet
+- The smart contract deplyment works when `proofsEnabled ` is true but fails otherwise `FATAL ERROR: Reached heap limit Allocation failed`
+
