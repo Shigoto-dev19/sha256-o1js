@@ -1,40 +1,84 @@
 import { Field, Gadgets, Bool, Provable } from 'o1js';
+
 const TWO32 = new Field(2n ** 32n);
 
-/// A binary rotation right function inspired from the sha256 circuit from circomlib
-/// This function replaces the native o1js function (Gadgets.rotate(x, r, 'right')) regarding that it only operates on hardcoded 64-bit field elements
-function RotR(input: Field, r: number): Field {
-  const input_binary = input.toBits(32);
-  const out_binary: Bool[] = [];
+/**
+ * Performs a bitwise rotation to the right on a 32-bit field element.
+ *
+ * This function is inspired by the sha256 circuit from circomlib and is designed to replace
+ * the native o1js function (Gadgets.rotate(x, r, 'right')). It specifically operates on
+ * hardcoded 32-bit field elements.
+ *
+ * @param {Field} input - The 32-bit field element to be rotated.
+ * @param {number} r - The number of positions to rotate the bits to the right.
+ * @returns {Field} A new 32-bit field element representing the result of the right rotation.
+ *
+ * @throws {Error} If the resulting field element exceeds the range of 2^32.
+ *
+ * @example
+ * const inputField = Field(...); // Initialize with a 32-bit field element
+ * const rotatedResult = rotateRight(inputField, 4); // Performs a right rotation by 4 positions.
+ */
+function rotateRight(input: Field, r: number): Field {
+  const inputBinary = input.toBits(32);
+  const outBinary: Bool[] = [];
 
   for (let i = 0; i < 32; i++) {
-    out_binary.push(input_binary[(i + r) % 32]);
+    outBinary.push(inputBinary[(i + r) % 32]);
   }
 
-  const out_field = Field.fromBits(out_binary);
-  out_field.assertLessThanOrEqual(2n ** 32n);
+  const outField = Field.fromBits(outBinary);
+  outField.assertLessThanOrEqual(2n ** 32n);
 
-  return out_field;
+  return outField;
 }
 
-/// A binary shift right function inspired from the sha256 circuit from circomlib
-/// This function replaces the native o1js function (Gadgets.rightShift(x, r)) regarding that it only operates on hardcoded 64-bit field elements
-function ShR(x: Field, r: number): Field {
-  const x_binary = x.toBits(32);
-  const out_binary: Bool[] = [];
+/**
+ * Performs a bitwise shift to the right on a 32-bit field element.
+ *
+ * This function is inspired by the sha256 circuit from circomlib and is designed to replace
+ * the native o1js function (Gadgets.rightShift(x, r)). It specifically operates on
+ * hardcoded 32-bit field elements.
+ *
+ * @param {Field} input - The 32-bit field element to be shifted.
+ * @param {number} r - The number of positions to shift the bits to the right.
+ * @returns {Field} A new 32-bit field element representing the result of the right shift.
+ *
+ * @example
+ * const inputField = Field(...); // Initialize with a 32-bit field element
+ * const shiftedResult = shiftRight(inputField, 4); // Performs a right shift by 4 positions.
+ */
+function shiftRight(input: Field, r: number): Field {
+  const inputBinary = input.toBits(32);
+  const outBinary: Bool[] = [];
 
   for (let i = 0; i < 32; i++) {
     if (i + r >= 32) {
-      out_binary.push(Bool(false));
+      outBinary.push(Bool(false));
     } else {
-      out_binary.push(x_binary[i + r]);
+      outBinary.push(inputBinary[i + r]);
     }
   }
 
-  return Field.fromBits(out_binary);
+  return Field.fromBits(outBinary);
 }
 
-/// choice: Ch(x, y, z) = (x AND y) XOR (-x AND z)
+/**
+ * Performs the choice bitwise operation on three 32-bit field elements.
+ *
+ * The choice bitwise operation is defined as: ch(x, y, z) = (x AND y) XOR (-x AND z).
+ *
+ * @param {Field} x - The first 32-bit field element.
+ * @param {Field} y - The second 32-bit field element.
+ * @param {Field} z - The third 32-bit field element.
+ * @returns {Field} A new 32-bit field element representing the result of the ch operation.
+ *
+ * @example
+ * const xField = Field(...); // Initialize with a 32-bit field element
+ * const yField = Field(...); // Initialize with a 32-bit field element
+ * const zField = Field(...); // Initialize with a 32-bit field element
+ * const chResult = ch(xField, yField, zField); // Performs the ch operation.
+ */
 function ch(x: Field, y: Field, z: Field): Field {
   const xy = Gadgets.and(x, y, 32);
   const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
@@ -42,7 +86,22 @@ function ch(x: Field, y: Field, z: Field): Field {
   return Gadgets.xor(xy, _xz, 32);
 }
 
-/// majority: Maj(x, y, z) = (x AND y) XOR (x AND z) XOR (y AND z)
+/**
+ * Performs the majority bitwise operation on three 32-bit field elements.
+ *
+ * The maj operation is defined as: maj(x, y, z) = (x AND y) XOR (x AND z) XOR (y AND z).
+ *
+ * @param {Field} x - The first 32-bit field element.
+ * @param {Field} y - The second 32-bit field element.
+ * @param {Field} z - The third 32-bit field element.
+ * @returns {Field} A new 32-bit field element representing the result of the Maj operation.
+ *
+ * @example
+ * const xField = Field(...); // Initialize with a 32-bit field element
+ * const yField = Field(...); // Initialize with a 32-bit field element
+ * const zField = Field(...); // Initialize with a 32-bit field element
+ * const majResult = maj(xField, yField, zField); // Performs the Maj operation.
+ */
 function maj(x: Field, y: Field, z: Field): Field {
   const xy = Gadgets.and(x, y, 32);
   const xz = Gadgets.and(x, z, 32);
@@ -51,41 +110,85 @@ function maj(x: Field, y: Field, z: Field): Field {
   return Gadgets.xor(Gadgets.xor(xy, xz, 32), yz, 32);
 }
 
-/// Uppercase sigma functions according to the SHA-256 standards
-/// Σ0(x) = ROTR(2,  x) XOR ROTR(13, x) XOR ROTR(22, x)
+/**
+ * Calculates the uppercase Σ0 bitwise function according to the SHA-256 standards.
+ *
+ * The Σ0 function is defined as: Σ0(x) = ROTR(2, x) XOR ROTR(13, x) XOR ROTR(22, x).
+ *
+ * @param {Field} x - The 32-bit field element to be processed by the Sigma-0 function.
+ * @returns {Field} A new 32-bit field element representing the result of the Sigma-0 function.
+ *
+ * @example
+ * const xField = Field(...); // Initialize with a 32-bit field element
+ * const Σ0Result = SIGMA0(xField); // Calculates the Sigma-0 function.
+ */
 function SIGMA0(x: Field) {
-  const rotr2 = RotR(x, 2);
-  const rotr13 = RotR(x, 13);
-  const rotr22 = RotR(x, 22);
+  const rotr2 = rotateRight(x, 2);
+  const rotr13 = rotateRight(x, 13);
+  const rotr22 = rotateRight(x, 22);
 
   return Gadgets.xor(Gadgets.xor(rotr2, rotr13, 32), rotr22, 32);
 }
 
-/// Σ1(x) = ROTR(6,  x) XOR ROTR(11, x) XOR ROTR(25, x)
+/**
+ * Calculates the uppercase Σ1 bitwise function according to the SHA-256 standards.
+ *
+ * The Σ1 function is defined as: Σ1(x) = ROTR(6, x) XOR ROTR(11, x) XOR ROTR(25, x).
+ *
+ * @param {Field} x - The 32-bit field element to be processed by the Σ1 function.
+ * @returns {Field} A new 32-bit field element representing the result of the Σ1 function.
+ *
+ * @example
+ * const xField = Field(...); // Initialize with a 32-bit field element
+ * const Σ1Result = SIGMA1(xField); // Calculates the Σ1 function.
+ */
 function SIGMA1(x: Field) {
-  const rotr6 = RotR(x, 6);
-  const rotr11 = RotR(x, 11);
-  const rotr25 = RotR(x, 25);
+  const rotr6 = rotateRight(x, 6);
+  const rotr11 = rotateRight(x, 11);
+  const rotr25 = rotateRight(x, 25);
 
   return Gadgets.xor(Gadgets.xor(rotr6, rotr11, 32), rotr25, 32);
 }
 
-/// Lowercase sigma functions according to the SHA-256 standards
-/// σ0(x) = ROTR(7,  x) XOR ROTR(18, x) XOR (x>>>3)
+/**
+ * Calculates the lowercase σ0 bitwise function according to the SHA-256 standards.
+ *
+ * The σ0 function is defined as: σ0(x) = ROTR(7, x) XOR ROTR(18, x) XOR (x>>>3).
+ *
+ * @param {Field} x - The 32-bit field element to be processed by the σ0 function.
+ * @returns {Field} A new 32-bit field element representing the result of the σ0 function.
+ *
+ * @example
+ * const xField = Field(...); // Initialize with a 32-bit field element
+ * const σ0Result = sigma0(xField); // Calculates the σ0 function.
+ */
 function sigma0(x: Field) {
-  const rotr7 = RotR(x, 7);
-  const rotr18 = RotR(x, 18);
-  const shr3 = ShR(x, 3);
+  const rotr7 = rotateRight(x, 7);
+  const rotr18 = rotateRight(x, 18);
+  const shr3 = shiftRight(x, 3);
 
   const rotr7x18 = Gadgets.xor(rotr7, rotr18, 32);
+
   return Gadgets.xor(rotr7x18, shr3, 32);
 }
 
-/// σ1(x) = ROTR(17, x) XOR ROTR(19, x) XOR (x>>>10)
+/**
+ * Calculates the lowercase σ1 bitwise function according to the SHA-256 standards.
+ *
+ * The σ1 function is defined as: σ1(x) = ROTR(17, x) XOR ROTR(19, x) XOR (x>>>10).
+ *
+ * @param {Field} x - The 32-bit field element to be processed by the σ1 function.
+ * @returns {Field} A new 32-bit field element representing the result of the σ1 function.
+ *
+ * @example
+ * const xField = Field(...); // Initialize with a 32-bit field element
+ * const sigma1Result = sigma1(xField); // Calculates the σ1 function.
+ */
 function sigma1(x: Field) {
-  const rotr17 = RotR(x, 17);
-  const rotr19 = RotR(x, 19);
-  const shr10 = ShR(x, 10);
+  const rotr17 = rotateRight(x, 17);
+  const rotr19 = rotateRight(x, 19);
+  const shr10 = shiftRight(x, 10);
+
   return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
 }
 
@@ -98,20 +201,30 @@ function bitwiseAddition2Mod32(a: Field, b: Field): Field {
   return out
 }
 
+/**
+ * Performs bitwise addition modulo 2^32 on multiple 32-bit field elements.
+ *
+ * This function iteratively adds multiple field elements using the bitwiseAddition2Mod32 function.
+ *
+ * @param {...Field} args - The 32-bit field elements to be added.
+ * @returns {Field} A new 32-bit field element representing the result of the bitwise addition modulo 2^32.
+ *
+ * @example
+ * const aField = Field(...); // Initialize with a 32-bit field element
+ * const bField = Field(...); // Initialize with another 32-bit field element
+ * const cField = Field(...); // Initialize with yet another 32-bit field element
+ * const result = bitwiseAdditionMod32(aField, bField, cField); // Performs bitwise addition modulo 2^32.
+ */
 function bitwiseAdditionMod32(...args: Field[]): Field {
   let sum = Field(0);
-
-  // Add each argument using the bitwiseAdditionMod32 function
-  for (const val of args) {
-    sum = bitwiseAddition2Mod32(sum, val);
-  }
+  for (const val of args) sum = bitwiseAddition2Mod32(sum, val);
 
   return sum;
 }
 
 export {
-  RotR,
-  ShR,
+  rotateRight,
+  shiftRight,
   ch,
   maj,
   SIGMA0,

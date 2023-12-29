@@ -17,7 +17,7 @@ const TWO32 = 2n ** 32n;
  * @note
  * This function is mainly used in the file: `./bitwise.test.ts`
  */
-function rotateRight(x: number, n: number): bigint {
+function rotateRightNative(x: number, n: number): bigint {
   const rotated = (x >>> n) | (x << (32 - n));
   let rotatedBig = BigInt(rotated);
   if (rotatedBig < 0n) rotatedBig += TWO32;
@@ -35,7 +35,7 @@ function rotateRight(x: number, n: number): bigint {
  * @note
  * This function is mainly used in the file: `./bitwise.test.ts`
  */
-function shiftRight(value: number, shift: number): bigint {
+function shiftRightNative(value: number, shift: number): bigint {
   const shifted = value >>> shift;
   return BigInt(shifted);
 }
@@ -123,8 +123,8 @@ function nobleHash(input: string): string {
 
 export {
   TWO32,
-  rotateRight,
-  shiftRight,
+  rotateRightNative,
+  shiftRightNative,
   generateRandomString,
   generateRandomInput,
   generateRandomBytes,
