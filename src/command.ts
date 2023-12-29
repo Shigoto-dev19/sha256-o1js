@@ -1,6 +1,4 @@
 import { nodeHash, o1jsHash, nobleHash } from './test-utils.js';
-
-//TODO: integrate hash and logs inside the class
 class Timer {
   private startTime: number;
   private endTime: number;
@@ -16,38 +14,36 @@ class Timer {
   }
 }
 
+function benchmarkHash(hashFunction: typeof nobleHash, input: string) {
+  const timer = new Timer();
+  timer.start();
+  const digest = hashFunction(input);
+  timer.end();
+
+  return {digest, executionTime: timer.executionTime}
+}
+
 const input = process.argv[2] ?? '';
 
-const o1jsTimer = new Timer();
-o1jsTimer.start();
-const o1jsDigest = o1jsHash(input);
-o1jsTimer.end();
-
-const nodeTimer = new Timer();
-nodeTimer.start();
-const nodeDigest = nodeHash(input);
-nodeTimer.end();
-
-const nobleTimer = new Timer();
-nobleTimer.start();
-const nobleDigest = nobleHash(input);
-nobleTimer.end();
+const o1js = benchmarkHash(o1jsHash, input);
+const node = benchmarkHash(nodeHash, input);
+const noble = benchmarkHash(nobleHash, input);
 
 console.table([
   { Step: 'Input', Value: input },
   {
     Step: 'o1js Hash',
-    Hash: o1jsDigest,
-    'Execution Time': o1jsTimer.executionTime,
+    Hash: o1js.digest,
+    'Execution Time': o1js.executionTime,
   },
   {
     Step: 'node Hash',
-    Hash: nodeDigest,
-    'Execution Time': nodeTimer.executionTime,
+    Hash: node.digest,
+    'Execution Time': node.executionTime,
   },
   {
     Step: 'noble Hash',
-    Hash: nobleDigest,
-    'Execution Time': nobleTimer.executionTime,
+    Hash: noble.digest,
+    'Execution Time': noble.executionTime,
   },
 ]);
