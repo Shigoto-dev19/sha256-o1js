@@ -9,14 +9,14 @@
 - In general, I was persistant on fixing the o1js gadgets with no successful attempt again:
     - It is not clear how custom gates were developed.
     - For range checks: The concept of 2-bit & 12-bit limbs was abstract and I could not find any explanation of such an approach.
-    - Witness slicing used in bitwise functions is a surprsingly new function for me as a zk-developer and it wasn't clear how this functionality serve as an optimization factor.
+    - Witness slicing used in bitwise functions is a surprsingly a new function for me as a zk-developer and it wasn't clear how this functionality serve as an optimization factor.
     - The use of unexported and undocumented utilities from 'common.js' for instance, and other files was an additional barrier to understanding the mechanism of how the gadgets were developed.
     - Overall, I think it would be beneficial to document and explain such specific gadgets, so that onboarding developers learn and simulate developing efficient and functional utilities or understand the concept to tweak some code for specific use cases.
 - I took the same decision and continued using the bitwise functions with logic similar to the bitwise templates in circom.
 - After debugging, I found out that a truthy assertion for the control flow of the "bitwiseAdditionMod32" function wasn't always checking and caused overflow of Field addition --> I fixed by comparing after converting "Field"s into "bigint"s.
 - After revisions, the hash function finally compiles with no errors.
 - I added a parser and debugged to check the integrity of digests.
-- I am getting a 256-bit digest but it is not the expect result.
+- I am getting a 256-bit digest but it is not the expected result.
 - Finally had some satisfying results and decided to keep working on code semantics on DAY2.
 
 
@@ -27,7 +27,8 @@
 - Add tests utilities for bitwise functions.
 - Add tests for the shift right bitwise function.
 - Add tests for the choice(ch) bitwise function.
-- Realized that SHA256 uses the "big-endian" convention but bitifying field in o1js uses the "little-endian" convention, I thought it was a problem but there is no need to reverse endianess since return a field take also the "LE" convention.
+- Realized that SHA256 uses the "big-endian" convention but bitifying field elements in o1js uses the "little-endian" convention.
+    - I thought it was a problem but there is no need to reverse endianess since return a field take also the "LE" convention.
 - All in all, I figured out testing with o1js using jest. I will keep testing the rest of the bitwise function on DAY3.
 
 ### DAY3: 10th December
@@ -41,6 +42,7 @@
 - All unit bitwise function work seamlessly asserted to common JS bitwise functions used in [verified SHA256 code](https://www.movable-type.co.uk/scripts/sha256.html).
 - Check endianess compliance here and there but still the same problem.
 - Suspect error source from preprocessing . I will start testing preprocessing outputs on DAY4.  
+- Testing code is quite practical when developing zkapps but is not compliant with provable code debugging, that means that tests may pass semantically as normal TS code but it may not be deployable i.e. provable(circuit).
 
 ### DAY4: 12th December
 - Add tests for binary conversion
@@ -60,7 +62,7 @@
 - Move the `bitwiseAdditionMod32` function from "preprocessing.ts" to "functions.ts" file.
 - Add preprocessing tests for empty string case.
 - Add `BinaryString` type to inhibit confusion from the casual *string* type from a string of binary number.
-    - **NOTE:** This type is set now for readability but later it will be set as constrainted subtype of string that contains only '0' and '1' such as '0101010110011110'.
+    - **NOTE:** This type is set now for readability but later it will be set as constrainted generic subtype of string that contains only '0' and '1' such as '0101010110011110'.
 - Add new file `utils.ts` that contains all binary conversion utilities
     - Move `binaryToHex` function from **index.ts** to **utils.ts** file.
     - Move `bstringToBoolArray`, `stringToBoolArray` and `numberToBoolArray` functions from **preprocessing.ts** to **utils.ts** file.
@@ -187,4 +189,39 @@
     - Refactor preprocessing function names for improved clarity.
     - Update file imports to align with the revised preprocessing structure.
 - Check & Polish the navigator report for december
+
+## Feedback
+- Considering that my project is technically complicated, I want to report that not every progress I did is manifested in code
+    - Debugging a hash function is quite difficult and time-consuming process.
+    - The shift to make code functional and then process to make it provably correct took more time than expected.
+        - I simulated my knowledge in circom development to get the gist of it, still it is not verifiable till deployment.
+        - It is neccessary to read source-code here and there and learna a lot of things from MINA development resources.
+    - It takes time to get more familiar with the o1js embedded DSL.
+    - I had to learn about zkapp limitations
+        - These limitations were only seen after long debugging sessions having vague error logs
+        - There is a limit in the size of a deployable zkapp
+        - The smart contract method is quite unflexible when it comes to input types.
+
+- I suggest that smart contract method input should support array of field with known length as in circom or Rust.
+- I suggest to add array assertion whether for `Bool` or `Field` to the type/class prototype(similar to circom).
+- I would like to have the option for constraint assertion to return Bool or a field element 1 or 0
+    - This will help with conditional control flow
+    - I might use the output for a binary combination as in circom
+    - It would be flexible to assert on the output (1 or 0) indirectly
+        - the case might be singular or for multiple output from different assertions.
+
+- I see no explanation of difference between different o1js types considering my knowledge of zk development
+    - I asked about this in the first `Learn & earn session`
+    - Is `Bool` a full field element as `Field(0)` or `Field(1)`?.
+        - Is it optimized compared to field?
+        - I ask the same for the other `UINT` types.
+        - If these types save constraints or reduce size of a full field element then how does that happen, that's quite interesting!
+- I would like to learn coding my own custom gates with o1js
+    - I see no documentation or proper explanation not in MINA documentation nor in source-code
+    - It would be beneficial to have JSDoc to source-code in general
+    - I kinda feel that it is for insider MINA developer who's been there for a while
+        - I want the chance to learn fast and join as well :)
+- I started my journey with learning cryptography and coding in circom that's why I feel my situation is somewhat different than other developers working on DApps.
+
+
 
