@@ -215,7 +215,7 @@ function bitwiseAddition2Mod32(a: Field, b: Field): Field {
  * const cField = Field(...); // Initialize with yet another 32-bit field element
  * const result = bitwiseAdditionMod32(aField, bField, cField); // Performs bitwise addition modulo 2^32.
  */
-function bitwiseAdditionMod32(...args: Field[]): Field {
+function addMod32(...args: Field[]): Field {
   let sum = Field(0);
   for (const val of args) sum = bitwiseAddition2Mod32(sum, val);
 
@@ -231,5 +231,5 @@ export {
   SIGMA1,
   sigma0,
   sigma1,
-  bitwiseAdditionMod32,
+  addMod32,
 };

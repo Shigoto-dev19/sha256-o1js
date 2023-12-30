@@ -1,6 +1,6 @@
 import { Field, Bool } from 'o1js';
 import { toBoolArray } from './binary-utils.js';
-import { bitwiseAdditionMod32, sigma0, sigma1 } from './functions.js';
+import { addMod32, sigma0, sigma1 } from './functions.js';
 
 /**
  * Performs padding on the input according to the SHA-256 standards.
@@ -143,7 +143,7 @@ function prepareMessageSchedule(bits32Words: Field[]): Field[] {
   const W = [...bits32Words];
   
   for (let t = 16; t <= 63; t++) {
-    W[t] = bitwiseAdditionMod32(
+    W[t] = addMod32(
       sigma1(W[t - 2]),
       W[t - 7],
       sigma0(W[t - 15]),

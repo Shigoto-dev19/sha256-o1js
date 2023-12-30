@@ -5,7 +5,7 @@ import {
   maj,
   SIGMA0,
   SIGMA1,
-  bitwiseAdditionMod32,
+  addMod32,
 } from './functions.js';
 
 import { 
@@ -41,27 +41,27 @@ export function sha256<T extends InputOptions>(input: T): Field[] {
     let h = H[7];
 
     for (let t = 0; t < 64; t++) {
-      const T1 = bitwiseAdditionMod32(h, SIGMA1(e), ch(e, f, g), K[t], W[t]);
-      const T2 = bitwiseAdditionMod32(SIGMA0(a), maj(a, b, c));
+      const T1 = addMod32(h, SIGMA1(e), ch(e, f, g), K[t], W[t]);
+      const T2 = addMod32(SIGMA0(a), maj(a, b, c));
 
       h = g;
       g = f;
       f = e;
-      e = bitwiseAdditionMod32(d, T1);
+      e = addMod32(d, T1);
       d = c;
       c = b;
       b = a;
-      a = bitwiseAdditionMod32(T1, T2);
+      a = addMod32(T1, T2);
     }
 
-    H[0] = bitwiseAdditionMod32(a, H[0]);
-    H[1] = bitwiseAdditionMod32(b, H[1]);
-    H[2] = bitwiseAdditionMod32(c, H[2]);
-    H[3] = bitwiseAdditionMod32(d, H[3]);
-    H[4] = bitwiseAdditionMod32(e, H[4]);
-    H[5] = bitwiseAdditionMod32(f, H[5]);
-    H[6] = bitwiseAdditionMod32(g, H[6]);
-    H[7] = bitwiseAdditionMod32(h, H[7]);
+    H[0] = addMod32(a, H[0]);
+    H[1] = addMod32(b, H[1]);
+    H[2] = addMod32(c, H[2]);
+    H[3] = addMod32(d, H[3]);
+    H[4] = addMod32(e, H[4]);
+    H[5] = addMod32(f, H[5]);
+    H[6] = addMod32(g, H[6]);
+    H[7] = addMod32(h, H[7]);
   }
   
   return H;

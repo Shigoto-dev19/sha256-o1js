@@ -11,6 +11,7 @@ const o1jsDigest =  [
   198289410,
   3169118214
 ].map(Field);
+
 export class Sha256ZkApp extends SmartContract {
   @state(Field) h1 = State<Field>();
   @state(Field) h2 = State<Field>();

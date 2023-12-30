@@ -7,7 +7,7 @@ import {
   sigma1,
   SIGMA0,
   SIGMA1,
-  bitwiseAdditionMod32 as bitwiseAdditionMod32Field,
+  addMod32,
 } from './functions';
 
 import { Field } from 'o1js';
@@ -326,7 +326,7 @@ describe('Bitwise Operation Tests', () => {
     });
   });
 
-  describe('bitwiseAdditionMod32 SHA256 function tests', () => {
+  describe('addMod32 SHA256 function tests', () => {
     const additionMod32 = (...args: number[]): bigint => {
       const out = args.reduce((result, value) => (result + value) | 0, 0);
       let outBig = BigInt(out);
@@ -336,7 +336,7 @@ describe('Bitwise Operation Tests', () => {
     };
 
     const testAdditionMod32 = (inputs: number[]) => {
-      const actual = bitwiseAdditionMod32Field(...inputs.map(Field)).toBigInt();
+      const actual = addMod32(...inputs.map(Field)).toBigInt();
       const expected = additionMod32(...inputs);
 
       expect(actual).toBe(expected);
