@@ -1,52 +1,35 @@
 import { Field } from 'o1js';
-import { H as initialHashes, K } from './constants.js';
+import { H as initialHashWords, K } from './constants.js';
 import {
   ch,
   maj,
   SIGMA0,
   SIGMA1,
-  sigma0,
-  sigma1,
   bitwiseAdditionMod32,
 } from './functions.js';
 
-import { padding, parsing512, M_op, parseSha2Input } from './preprocessing.js';
-
-/**
- *
- * Initialize the first 16 32-bit blocks and calculate the the remaining 48 blocks according to SHA-256 Standards
- * This function is seperated regarding that it serves to link preprocessing and hash computation.
- */
-function W_op(M: Field[]): Field[] {
-  const W = [...M];
-  for (let t = 16; t <= 63; t++) {
-    W[t] = bitwiseAdditionMod32(
-      sigma1(W[t - 2]),
-      W[t - 7],
-      sigma0(W[t - 15]),
-      W[t - 16]
-    );
-  }
-  return W;
-}
+import { 
+  padInput, 
+  parseBinaryTo512BitBlocks, 
+  parse512BitBlock, 
+  parseSha2Input, 
+  prepareMessageSchedule,
+} from './preprocessing.js';
 
 //TODO: make generic function that return two function: one for tests and one for smart contract
 // The SHA-256 function of a string input
 type InputOptions = Field | string ;
 export function sha256<T extends InputOptions>(input: T): Field[] {
-  const H = [...initialHashes];
+  const H = [...initialHashWords];
+  
   const parsedInput = parseSha2Input(input);
-  // if (typeof input === 'string') parsedInput = Provable.witness(Field[], parseSha2Input(input));
-  // else parsedInput = parseSha2Input(Field(input));
-  // pad & parse input
-  const padded_input = padding(parsedInput);
+  const paddedInput = padInput(parsedInput);
 
-  const N = parsing512(padded_input);
-  const N_blocks = N.length;
+  const N = parseBinaryTo512BitBlocks(paddedInput);
 
-  for (let i = 1; i <= N_blocks; i++) {
-    const M = M_op(N[i - 1]);
-    const W = W_op(M);
+  for (let i = 1; i <= N.length; i++) {
+    const M = parse512BitBlock(N[i - 1]);
+    const W = prepareMessageSchedule(M);
 
     let a = H[0];
     let b = H[1];
@@ -80,5 +63,6 @@ export function sha256<T extends InputOptions>(input: T): Field[] {
     H[6] = bitwiseAdditionMod32(g, H[6]);
     H[7] = bitwiseAdditionMod32(h, H[7]);
   }
+  
   return H;
 }

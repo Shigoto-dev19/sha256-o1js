@@ -66,7 +66,7 @@ function binaryStringToBoolArray(binaryString: BinaryString): Bool[] {
  */
 function toBoolArray<T extends string | number>(input: T): Bool[] {
   if (typeof input === 'string') {
-    /// UTF-8 encode a string and convert the binary string into an o1js Bool type array.
+    // UTF-8 encode a string and convert the binary string into an o1js Bool type array.
     let binaryString = '';
     for (let i = 0; i < input.length; i++) {
       let charCode = input.charCodeAt(i);
@@ -75,11 +75,11 @@ function toBoolArray<T extends string | number>(input: T): Bool[] {
     }
     return binaryStringToBoolArray(binaryString);
   } else if (typeof input === 'number') {
-    /// Convert the input number from decimal to binary string and then inot an o1js Bool type array.
+    // Convert the input number from decimal to binary string and then inot an o1js Bool type array.
     const binaryString = input.toString(2).padStart(64, '0');
     return binaryStringToBoolArray(binaryString);
   } else {
-    /// Handle other cases
+    // Handle other cases
     throw new Error(
       'Unsupported input type. Only string or number are allowed.'
     );

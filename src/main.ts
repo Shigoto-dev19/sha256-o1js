@@ -1,4 +1,3 @@
-import { sha256 } from './sha256.js';
 import { Sha256ZkApp } from './index.js';
 import {
   Field,
@@ -32,7 +31,7 @@ await deployTxn.sign([deployerKey, zkAppPrivateKey]).send();
 
 // get the initial state of Square after deployment
 const digestInit = zkAppInstance.h1.get();
-// digestInit.forEach(x => x.assertEquals(x));
+
 console.log('Part 1/8 of expected digest:', digestInit.toString());
 console.log('Part 2/8 of expected digest:', zkAppInstance.h2.get().toString());
 console.log('Part 3/8 of expected digest:', zkAppInstance.h3.get().toString());
