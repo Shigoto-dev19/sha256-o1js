@@ -174,5 +174,17 @@
     - zk contract tests
     - `main.ts` file for local deplyment
     - deploy to berkeley testnet
-- The smart contract deplyment works when `proofsEnabled ` is true but fails otherwise `FATAL ERROR: Reached heap limit Allocation failed`
+- The smart contract deplyment works when `proofsEnabled` is true but fails otherwise `FATAL ERROR: Reached heap limit Allocation failed`
+
+### DAY12: 29-30th December
+- Refactor command.js code and add script to package.json using `npm run digest <input>`
+- Change notation of `RotR` and `ShR` provable functions into `rotateRight` and `shiftRight`
+    - Change the test functions `rotateRight` and `shiftRight` inot `rotateRightNative` and `shiftRightNative` respectively.
+    - Adapt notations inside `bitwise.test.ts` file.
+- Add JSDoc documentation to `function.ts` o1js bitwise functions and change variable notation from snaked cased into camel cased.
+- Polish preprocessing function
+    - Document preprocessing functions with JSDoc comments.
+    - Refactor preprocessing function names for improved clarity.
+    - Update file imports to align with the revised preprocessing structure.
+- Check & Polish the navigator report for december
 
