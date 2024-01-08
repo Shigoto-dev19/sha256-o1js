@@ -37,14 +37,14 @@ export class Sha256ZkApp extends SmartContract {
   }
 
   @method hash(x: Field) {
-    const p1 = this.h1.getAndAssertEquals();
-    const p2 = this.h2.getAndAssertEquals();
-    const p3 = this.h3.getAndAssertEquals();
-    const p4 = this.h4.getAndAssertEquals();
-    const p5 = this.h5.getAndAssertEquals();
-    const p6 = this.h6.getAndAssertEquals();
-    const p7 = this.h7.getAndAssertEquals();
-    const p8 = this.h8.getAndAssertEquals();
+    const p1 = this.h1.getAndRequireEquals();
+    const p2 = this.h2.getAndRequireEquals();
+    const p3 = this.h3.getAndRequireEquals();
+    const p4 = this.h4.getAndRequireEquals();
+    const p5 = this.h5.getAndRequireEquals();
+    const p6 = this.h6.getAndRequireEquals();
+    const p7 = this.h7.getAndRequireEquals();
+    const p8 = this.h8.getAndRequireEquals();
 
     const [x1, x2, x3, x4, x5, x6, x7, x8] = sha256(x);
 
