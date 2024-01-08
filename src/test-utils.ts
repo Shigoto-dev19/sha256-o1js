@@ -121,6 +121,25 @@ function nobleHash(input: string): string {
   return bytesToHex(nobleSha256(input));
 }
 
+class Timer {
+  private startTime: number;
+  private endTime: number;
+  public executionTime: string;
+
+  constructor() {
+    this.start();
+  }
+
+  private start() {
+    this.startTime = performance.now();
+  }
+
+  end() {
+    this.endTime = performance.now();
+    this.executionTime = `${this.endTime - this.startTime} ms`;
+  }
+}
+
 export {
   TWO32,
   rotateRightNative,
@@ -131,4 +150,5 @@ export {
   nodeHash,
   o1jsHash,
   nobleHash,
+  Timer,
 };

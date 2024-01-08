@@ -1,26 +1,11 @@
-import { nodeHash, o1jsHash, nobleHash } from './test-utils.js';
-class Timer {
-  private startTime: number;
-  private endTime: number;
-  public executionTime: string;
-
-  start() {
-    this.startTime = performance.now();
-  }
-
-  end() {
-    this.endTime = performance.now();
-    this.executionTime = `${this.endTime - this.startTime} ms`;
-  }
-}
+import { nodeHash, o1jsHash, nobleHash, Timer } from './test-utils.js';
 
 function benchmarkHash(hashFunction: typeof nobleHash, input: string) {
   const timer = new Timer();
-  timer.start();
   const digest = hashFunction(input);
   timer.end();
 
-  return {digest, executionTime: timer.executionTime}
+  return { digest, executionTime: timer.executionTime };
 }
 
 const input = process.argv[2] ?? '';
@@ -47,3 +32,4 @@ console.table([
     'Execution Time': noble.executionTime,
   },
 ]);
+export { Timer };
