@@ -10,16 +10,17 @@ import { addMod32, sigma0, sigma1 } from './functions.js';
  *
  * @param {Field[]} input - The input parsed into an array of 8-bit field elements.
  * @returns {Bool[]} The padded input bits according to SHA-256.
- * 
+ *
  */
 function padInput(input: Field[]): Bool[] {
   // Reverse parsing the input from Field[] into binary=Bool[]
-  let inputBinary = input.map(f => f.toBits(8)).flat();
-  
+  let inputBinary = input.map((f) => f.toBits(8)).flat();
+
   const blockSize = 512;
   const initialLength = inputBinary.length;
   const bitLength = initialLength % blockSize;
-  const paddingLength = (bitLength < 448) ? (448 - bitLength) : (blockSize + 448 - bitLength);
+  const paddingLength =
+    bitLength < 448 ? 448 - bitLength : blockSize + 448 - bitLength;
 
   // Append a single '1' bit
   inputBinary.push(Bool(true));
@@ -30,7 +31,7 @@ function padInput(input: Field[]): Bool[] {
   // Append the 64-bit representation of the initial length
   const inputBitLengthBinary = toBoolArray(initialLength);
   inputBinary.push(...inputBitLengthBinary);
- 
+
   return inputBinary;
 }
 
@@ -76,7 +77,7 @@ function splitArrayIntoBlocks(inputArray: Bool[]): Field[] {
  */
 function parseSha2Input(input: string | Field): Field[] {
   let inputBinary: Bool[];
-  
+
   if (typeof input === 'string') inputBinary = toBoolArray(input);
   else inputBinary = input.toBits();
 
@@ -141,23 +142,18 @@ function parse512BitBlock(bits512Block: Bool[]): Field[] {
  */
 function prepareMessageSchedule(bits32Words: Field[]): Field[] {
   const W = [...bits32Words];
-  
+
   for (let t = 16; t <= 63; t++) {
-    W[t] = addMod32(
-      sigma1(W[t - 2]),
-      W[t - 7],
-      sigma0(W[t - 15]),
-      W[t - 16]
-    );
+    W[t] = addMod32(sigma1(W[t - 2]), W[t - 7], sigma0(W[t - 15]), W[t - 16]);
   }
 
   return W;
 }
 
-export { 
-  padInput, 
-  parseBinaryTo512BitBlocks, 
-  parse512BitBlock, 
-  parseSha2Input, 
+export {
+  padInput,
+  parseBinaryTo512BitBlocks,
+  parse512BitBlock,
+  parseSha2Input,
   prepareMessageSchedule,
 };

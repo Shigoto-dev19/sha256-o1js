@@ -1,7 +1,7 @@
-import { 
-  padInput, 
-  parseBinaryTo512BitBlocks, 
-  parseSha2Input, 
+import {
+  padInput,
+  parseBinaryTo512BitBlocks,
+  parseSha2Input,
   parse512BitBlock,
 } from './preprocessing';
 import { H } from './constants';

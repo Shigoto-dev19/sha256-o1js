@@ -1,17 +1,14 @@
 import { Sha256ZkApp } from './index.js';
-import {
-  Field,
-  Mina,
-  PrivateKey,
-  AccountUpdate,
-} from 'o1js';
+import { Field, Mina, PrivateKey, AccountUpdate } from 'o1js';
 
-const useProof = true;
+const useProof = false;
 
 const Local = Mina.LocalBlockchain({ proofsEnabled: useProof });
 Mina.setActiveInstance(Local);
-const { privateKey: deployerKey, publicKey: deployerAccount } = Local.testAccounts[0];
-const { privateKey: senderKey, publicKey: senderAccount } = Local.testAccounts[1];
+const { privateKey: deployerKey, publicKey: deployerAccount } =
+  Local.testAccounts[0];
+const { privateKey: senderKey, publicKey: senderAccount } =
+  Local.testAccounts[1];
 
 // ----------------------------------------------------
 
@@ -22,6 +19,7 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
 // create an instance of Square - and deploy it to zkAppAddress
 if (useProof) await Sha256ZkApp.compile();
 const zkAppInstance = new Sha256ZkApp(zkAppAddress);
+
 const deployTxn = await Mina.transaction(deployerAccount, () => {
   AccountUpdate.fundNewAccount(deployerAccount);
   zkAppInstance.deploy();
@@ -42,14 +40,12 @@ console.log('Part 7/8 of expected digest:', zkAppInstance.h7.get().toString());
 console.log('Part 8/8 of expected digest:', zkAppInstance.h8.get().toString());
 // ----------------------------------------------------
 
-
 const txn1 = await Mina.transaction(senderAccount, () => {
-  const x = Field(123456789);   
+  const x = Field(123456789);
   zkAppInstance.hash(x);
 });
 await txn1.prove();
 await txn1.sign([senderKey]).send();
 console.log('txn1: ', txn1.transaction);
 
-
-console.log('Finished compiling')
+console.log('Finished compiling');

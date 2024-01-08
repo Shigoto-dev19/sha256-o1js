@@ -1,15 +1,9 @@
 import { Field, SmartContract, state, State, method } from 'o1js';
 import { sha256 } from './sha256.js';
 
-const o1jsDigest =  [
-  124246274,
-  3652808864,
-  113200783,
-  2811496515,
-  169711656,
-  1835052556,
-  198289410,
-  3169118214
+const o1jsDigest = [
+  124246274, 3652808864, 113200783, 2811496515, 169711656, 1835052556,
+  198289410, 3169118214,
 ].map(Field);
 
 export class Sha256ZkApp extends SmartContract {
@@ -26,14 +20,14 @@ export class Sha256ZkApp extends SmartContract {
     //TODO: change digest into two 128-bit field elements
     super.init();
     // initial state
-    this.h1.set(o1jsDigest[0]); 
-    this.h2.set(o1jsDigest[1]); 
-    this.h3.set(o1jsDigest[2]); 
-    this.h4.set(o1jsDigest[3]); 
-    this.h5.set(o1jsDigest[4]); 
-    this.h6.set(o1jsDigest[5]); 
-    this.h7.set(o1jsDigest[6]); 
-    this.h8.set(o1jsDigest[7]); 
+    this.h1.set(o1jsDigest[0]);
+    this.h2.set(o1jsDigest[1]);
+    this.h3.set(o1jsDigest[2]);
+    this.h4.set(o1jsDigest[3]);
+    this.h5.set(o1jsDigest[4]);
+    this.h6.set(o1jsDigest[5]);
+    this.h7.set(o1jsDigest[6]);
+    this.h8.set(o1jsDigest[7]);
   }
 
   @method hash(x: Field) {

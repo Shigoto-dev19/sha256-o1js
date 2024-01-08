@@ -48,7 +48,7 @@ describe('Sha256ZkApp', () => {
 
   it('generates and deploys the `Sha256ZkApp` smart contract', async () => {
     await localDeploy();
-   
+
     let digest: Field;
     try {
       digest = zkApp.h1.get();
@@ -59,7 +59,7 @@ describe('Sha256ZkApp', () => {
       //   digest[i].assertEquals(expectedDigest[i])
       // }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   });
 
@@ -67,8 +67,8 @@ describe('Sha256ZkApp', () => {
     await localDeploy();
 
     // update transaction
-    const x = Field(123456789); 
-    const txn = await  Mina.transaction(senderAccount, () => {
+    const x = Field(123456789);
+    const txn = await Mina.transaction(senderAccount, () => {
       zkApp.hash(x);
     });
     await txn.prove();
