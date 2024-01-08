@@ -195,10 +195,10 @@ function sigma1(x: Field) {
 function bitwiseAddition2Mod32(a: Field, b: Field): Field {
   let sum = a.add(b);
   const out = Provable.witness(Field, () => {
-    return Field(sum.toBigInt() % TWO32.toBigInt())
-  })
+    return Field(sum.toBigInt() % TWO32.toBigInt());
+  });
   out.assertLessThan(TWO32);
-  return out
+  return out;
 }
 
 /**
@@ -222,6 +222,65 @@ function addMod32(...args: Field[]): Field {
   return sum;
 }
 
+const o1jsBitwise = {
+  shift32: (field: Field, bits: number) => {
+    let { remainder: shifted } = Gadgets.divMod32(
+      field.mul(1n >> BigInt(bits))
+    );
+    return shifted;
+  },
+  SIGMA0: (x: Field) => {
+    const rotr2 = Gadgets.rotate32(x, 2, 'right');
+    const rotr13 = Gadgets.rotate32(x, 13, 'right');
+    const rotr22 = Gadgets.rotate32(x, 22, 'right');
+
+    return Gadgets.xor(Gadgets.xor(rotr2, rotr13, 32), rotr22, 32);
+  },
+  SIGMA1: (x: Field) => {
+    const rotr6 = Gadgets.rotate32(x, 6, 'right');
+    const rotr11 = Gadgets.rotate32(x, 11, 'right');
+    const rotr25 = Gadgets.rotate32(x, 25, 'right');
+
+    return Gadgets.xor(Gadgets.xor(rotr6, rotr11, 32), rotr25, 32);
+  },
+  sigma0: (x: Field) => {
+    const rotr7 = Gadgets.rotate32(x, 7, 'right');
+    const rotr18 = Gadgets.rotate32(x, 18, 'right');
+    const shr3 = o1jsBitwise.shift32(x, 3);
+
+    const rotr7x18 = Gadgets.xor(rotr7, rotr18, 32);
+
+    return Gadgets.xor(rotr7x18, shr3, 32);
+  },
+  sigma1: (x: Field) => {
+    const rotr17 = Gadgets.rotate32(x, 17, 'right');
+    const rotr19 = Gadgets.rotate32(x, 19, 'right');
+    const shr10 = o1jsBitwise.shift32(x, 10);
+
+    return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
+  },
+  addMod32: (...args: Field[]): Field => {
+    let sum = Field(0);
+    for (const val of args) sum = Gadgets.addMod32(sum, val);
+
+    return sum;
+  },
+  prepareMessageSchedule(bits32Words: Field[]): Field[] {
+    const W = [...bits32Words];
+
+    for (let t = 16; t <= 63; t++) {
+      W[t] = o1jsBitwise.addMod32(
+        o1jsBitwise.sigma1(W[t - 2]),
+        W[t - 7],
+        o1jsBitwise.sigma0(W[t - 15]),
+        W[t - 16]
+      );
+    }
+
+    return W;
+  },
+};
+
 export {
   rotateRight,
   shiftRight,
@@ -232,4 +291,5 @@ export {
   sigma0,
   sigma1,
   addMod32,
+  o1jsBitwise,
 };
