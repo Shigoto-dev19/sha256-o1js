@@ -34,3 +34,27 @@
         - Move to test-utils.ts file
         - Integrate start method inside the constructor
 - Overall, after long sessions of reasearch & debugging, it was a success and good learning days exploring MINA :)
+
+### DAY3: 9th January
+
+- Add the optimized version to commands.ts
+  - A version of o1js SHA256 hash function optimized fully with native o1js gadgets is `10 times` faster that a hash function simulated to the implementation in circom!! -> command.ts log -> 1 iteration.
+  - SHA256 Benchmarks -> also verified by the benchmark script -> 1000 iterations
+    ├─o1js x 46 ops/sec @ 21ms/op
+    ├─o1jsOP x 388 ops/sec @ 2ms/op 
+  - The first SHA256 hash function was a combination of native o1js gadgets and simulated circom templated for other bitwise function
+    - After the last release, the 32-bit bitwise functions are now available.
+      - Adding the SHA256 function using purely the bitwise functions from the gadgets, it seems that it is worth comparing to the first hash function
+      - Write `ch` and `maj` bitwise function similar to the sha256 circom circuit implementation.
+      - Realize that `shift32` bitwise function was not correct after assertions -> Fix error source
+        - The latest release included leftShift32 and not rightShift and a simulated implementation was incorrect because leftShift is based on multiplication and rightShift on division
+          - division of field element give non-compliant results
+          - the solution is to use `Gadgets.rotate64(field, bits, 'right')` function to shift the bits to the left i.e getting rid of them and then truncate the rotated bits using Gadgets.divMod32() function.
+           ```typescript
+          let { remainder: shifted } = Gadgets.divMod32(Gadgets.rotate64(field, bits, 'right'));
+          ```
+          - See [benchnark results](../src/benchmarks.md) -> it is impressive that a SHA256 hash function is more than 50X faster than a circom-like implemented hash function
+- Improve benchmarks to be based on randomly generated inputs
+- Change format of the circuit stat logs in `command.ts`.
+- Add a seperate `benchmarks.md` file for time-consuming benchmark results.
+- Write a [tweet](https://x.com/KaffelMahmoud/status/1744805950114894129?s=20) about the fascinating results :)
