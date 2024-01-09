@@ -62,6 +62,24 @@ function shiftRight(input: Field, r: number): Field {
 
   return Field.fromBits(outBinary);
 }
+/* 
+out = a&b ^ (!a)&c =>
+
+out = a*(b-c) + c
+
+pragma circom 2.0.0;
+
+template Ch_t(n) {
+    signal input a[n];
+    signal input b[n];
+    signal input c[n];
+    signal output out[n];
+
+    for (var k=0; k<n; k++) {
+        out[k] <== a[k] * (b[k]-c[k]) + c[k];
+    }
+}
+ */
 
 /**
  * Performs the choice bitwise operation on three 32-bit field elements.
@@ -80,10 +98,17 @@ function shiftRight(input: Field, r: number): Field {
  * const chResult = ch(xField, yField, zField); // Performs the ch operation.
  */
 function ch(x: Field, y: Field, z: Field): Field {
-  const xy = Gadgets.and(x, y, 32);
-  const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
+  const a = x.toBits(32).map((bit) => bit.toField());
+  const b = y.toBits(32).map((bit) => bit.toField());
+  const c = z.toBits(32).map((bit) => bit.toField());
+  let out: Field[] = [];
 
-  return Gadgets.xor(xy, _xz, 32);
+  // out = a&b ^ (!a)&c => out = a*(b-c) + c
+  for (let k = 0; k < 32; k++) {
+    out[k] = a[k].mul(b[k].sub(c[k])).add(c[k]);
+  }
+
+  return Field.fromBits(out.map((bit) => bit.toBits(1)[0]));
 }
 
 /**
@@ -103,11 +128,24 @@ function ch(x: Field, y: Field, z: Field): Field {
  * const majResult = maj(xField, yField, zField); // Performs the Maj operation.
  */
 function maj(x: Field, y: Field, z: Field): Field {
-  const xy = Gadgets.and(x, y, 32);
-  const xz = Gadgets.and(x, z, 32);
-  const yz = Gadgets.and(y, z, 32);
+  /*
+  out = a&b ^ a&c ^ b&c  
+  out = a*b   +  a*c  +  b*c  -  2*a*b*c  
+  out = a*( b + c - 2*b*c ) + b*c 
+  mid = b*c
+  out = a*( b + c - 2*mid ) + mid
+   */
+  const a = x.toBits(32).map((bit) => bit.toField());
+  const b = y.toBits(32).map((bit) => bit.toField());
+  const c = z.toBits(32).map((bit) => bit.toField());
+  let mid: Field[] = [];
+  let out: Field[] = [];
+  for (let k = 0; k < 32; k++) {
+    mid[k] = b[k].mul(c[k]);
+    out[k] = a[k].mul(b[k].add(c[k]).sub(mid[k].mul(2))).add(mid[k]);
+  }
 
-  return Gadgets.xor(Gadgets.xor(xy, xz, 32), yz, 32);
+  return Field.fromBits(out.map((bit) => bit.toBits(1)[0]));
 }
 
 /**
@@ -198,6 +236,7 @@ function bitwiseAddition2Mod32(a: Field, b: Field): Field {
     return Field(sum.toBigInt() % TWO32.toBigInt());
   });
   out.assertLessThan(TWO32);
+
   return out;
 }
 
@@ -225,9 +264,22 @@ function addMod32(...args: Field[]): Field {
 const o1jsBitwise = {
   shift32: (field: Field, bits: number) => {
     let { remainder: shifted } = Gadgets.divMod32(
-      field.mul(1n >> BigInt(bits))
+      Gadgets.rotate64(field, bits, 'right')
     );
     return shifted;
+  },
+  ch: (x: Field, y: Field, z: Field): Field => {
+    const xy = Gadgets.and(x, y, 32);
+    const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
+
+    return Gadgets.xor(xy, _xz, 32);
+  },
+  maj: (x: Field, y: Field, z: Field): Field => {
+    const xy = Gadgets.and(x, y, 32);
+    const xz = Gadgets.and(x, z, 32);
+    const yz = Gadgets.and(y, z, 32);
+
+    return Gadgets.xor(Gadgets.xor(xy, xz, 32), yz, 32);
   },
   SIGMA0: (x: Field) => {
     const rotr2 = Gadgets.rotate32(x, 2, 'right');

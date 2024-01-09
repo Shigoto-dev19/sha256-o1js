@@ -29,19 +29,19 @@ function logCircuitStats(params: CircuitStats) {
     { Step: 'Circuit', Value: params.circuit },
     { Step: 'Preimage', Value: params.preimage },
     {
-      Step: 'Key Generation',
-      'Execution Time': params.kgTimer.executionTime,
+      Step: 'Key Generation Time',
+      Value: params.kgTimer.executionTime,
     },
     {
-      Step: 'Proving',
-      'Execution Time': params.pvTimer.executionTime,
+      Step: 'Proving Time',
+      Value: params.pvTimer.executionTime,
     },
     {
-      Step: 'Verification',
-      'Execution Time': params.vfTimer.executionTime,
+      Step: 'Verification Time',
+      Value: params.vfTimer.executionTime,
     },
     { Step: 'Wires', Value: params.wires },
-    { Step: 'Wires', Value: params.gates },
+    { Step: 'Gates', Value: params.gates },
   ]);
 }
 {

@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { binaryToHex, fieldToBinary } from './binary-utils.js';
-import { sha256 as o1jsSha256 } from './sha256.js';
+import { sha256 as o1jsSha256, sha256O1js } from './sha256.js';
 import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import * as crypto from 'crypto';
@@ -117,6 +117,14 @@ function o1jsHash(input: string): string {
   return digestHex;
 }
 
+function o1jsHashOP(input: string): string {
+  const digest = sha256O1js(input);
+  const digestBinary = digest.map(fieldToBinary).join('');
+  const digestHex = binaryToHex(digestBinary);
+
+  return digestHex;
+}
+
 function nobleHash(input: string): string {
   return bytesToHex(nobleSha256(input));
 }
@@ -149,6 +157,7 @@ export {
   generateRandomBytes,
   nodeHash,
   o1jsHash,
+  o1jsHashOP,
   nobleHash,
   Timer,
 };

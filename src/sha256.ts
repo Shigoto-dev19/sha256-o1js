@@ -10,7 +10,6 @@ import {
   prepareMessageSchedule,
 } from './preprocessing.js';
 
-//TODO: make generic function that return two function: one for tests and one for smart contract
 // The SHA-256 function of a string input
 type InputOptions = Field | string;
 export function sha256<T extends InputOptions>(input: T): Field[] {
@@ -62,7 +61,7 @@ export function sha256<T extends InputOptions>(input: T): Field[] {
 }
 
 import { o1jsBitwise } from './functions.js';
-export function sha256O1js(input: Field): Field[] {
+export function sha256O1js<T extends InputOptions>(input: T): Field[] {
   const H = [...initialHashWords];
 
   const parsedInput = parseSha2Input(input);
@@ -87,11 +86,14 @@ export function sha256O1js(input: Field): Field[] {
       const T1 = o1jsBitwise.addMod32(
         h,
         o1jsBitwise.SIGMA1(e),
-        ch(e, f, g),
+        o1jsBitwise.ch(e, f, g),
         K[t],
         W[t]
       );
-      const T2 = o1jsBitwise.addMod32(o1jsBitwise.SIGMA0(a), maj(a, b, c));
+      const T2 = o1jsBitwise.addMod32(
+        o1jsBitwise.SIGMA0(a),
+        o1jsBitwise.maj(a, b, c)
+      );
 
       h = g;
       g = f;
