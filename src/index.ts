@@ -1,5 +1,5 @@
 import { Field, SmartContract, state, State, method } from 'o1js';
-import { sha256 } from './sha256.js';
+import { sha256O1js } from './sha256.js';
 
 const o1jsDigest = [
   124246274, 3652808864, 113200783, 2811496515, 169711656, 1835052556,
@@ -40,7 +40,7 @@ export class Sha256ZkApp extends SmartContract {
     const p7 = this.h7.getAndRequireEquals();
     const p8 = this.h8.getAndRequireEquals();
 
-    const [x1, x2, x3, x4, x5, x6, x7, x8] = sha256(x);
+    const [x1, x2, x3, x4, x5, x6, x7, x8] = sha256O1js(x);
 
     p1.assertEquals(x1);
     p2.assertEquals(x2);

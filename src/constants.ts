@@ -21,4 +21,6 @@ const H: Array<Field> = [
   0x1f83d9ab, 0x5be0cd19,
 ].map(Field);
 
-export { K, H };
+const TWO32 = new Field(2 ** 32);
+
+export { K, H, TWO32 };

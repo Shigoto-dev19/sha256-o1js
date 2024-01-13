@@ -1,11 +1,25 @@
-import { createHash } from 'crypto';
 import { binaryToHex, fieldToBinary } from './binary-utils.js';
-import { sha256 as o1jsSha256, sha256O1js } from './sha256.js';
+import { sha256O1js } from './sha256.js';
+import { sha256 as sha256Circom } from './benchmarks/comparator/sha256-circom.js';
 import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import * as crypto from 'crypto';
 
-const TWO32 = 2n ** 32n;
+const TWO32 = BigInt(2 ** 32);
+
+export {
+  TWO32,
+  rotateRight32Native,
+  shiftRight32Native,
+  generateRandomString,
+  generateRandomInput,
+  generateRandomBytes,
+  nodeHash,
+  o1jsHash,
+  o1jsHashOP,
+  nobleHash,
+  Timer,
+};
 
 /**
  * Rotate the bits of a 32-bit unsigned integer to the right by a specified number of positions.
@@ -17,7 +31,7 @@ const TWO32 = 2n ** 32n;
  * @note
  * This function is mainly used in the file: `./bitwise.test.ts`
  */
-function rotateRightNative(x: number, n: number): bigint {
+function rotateRight32Native(x: number, n: number): bigint {
   const rotated = (x >>> n) | (x << (32 - n));
   let rotatedBig = BigInt(rotated);
   if (rotatedBig < 0n) rotatedBig += TWO32;
@@ -35,7 +49,7 @@ function rotateRightNative(x: number, n: number): bigint {
  * @note
  * This function is mainly used in the file: `./bitwise.test.ts`
  */
-function shiftRightNative(value: number, shift: number): bigint {
+function shiftRight32Native(value: number, shift: number): bigint {
   const shifted = value >>> shift;
   return BigInt(shifted);
 }
@@ -106,11 +120,11 @@ function generateRandomBytes(byteNumber = 4): bigint {
 }
 
 function nodeHash(input: string): string {
-  return createHash('sha256').update(input).digest('hex');
+  return crypto.createHash('sha256').update(input).digest('hex');
 }
 
 function o1jsHash(input: string): string {
-  const digest = o1jsSha256(input);
+  const digest = sha256Circom(input);
   const digestBinary = digest.map(fieldToBinary).join('');
   const digestHex = binaryToHex(digestBinary);
 
@@ -147,17 +161,3 @@ class Timer {
     this.executionTime = `${this.endTime - this.startTime} ms`;
   }
 }
-
-export {
-  TWO32,
-  rotateRightNative,
-  shiftRightNative,
-  generateRandomString,
-  generateRandomInput,
-  generateRandomBytes,
-  nodeHash,
-  o1jsHash,
-  o1jsHashOP,
-  nobleHash,
-  Timer,
-};

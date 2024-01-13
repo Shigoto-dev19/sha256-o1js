@@ -1,5 +1,14 @@
 import { Field, Bool } from 'o1js';
 
+export {
+  fieldToBinary,
+  binaryToHex,
+  toBoolArray,
+  toBinaryString,
+  binaryStringToBoolArray,
+  boolArrayToBinaryString,
+};
+
 /**
  * This type refers to a string that contains a sequence of '0's and '1' which is the binary representation of a number or an UTF-8 encoded native string ty
  */
@@ -105,12 +114,3 @@ function boolArrayToBinaryString(input: Bool[]): BinaryString {
 function toBinaryString(input: string | number): BinaryString {
   return boolArrayToBinaryString(toBoolArray(input));
 }
-
-export {
-  fieldToBinary,
-  binaryToHex,
-  toBoolArray,
-  toBinaryString,
-  binaryStringToBoolArray,
-  boolArrayToBinaryString,
-};

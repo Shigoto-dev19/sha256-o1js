@@ -1,6 +1,17 @@
 import { Field, Gadgets, Bool, Provable } from 'o1js';
+import { TWO32 } from '../../constants.js';
 
-const TWO32 = new Field(2n ** 32n);
+export {
+  rotateRight,
+  shiftRight,
+  ch,
+  maj,
+  SIGMA0,
+  SIGMA1,
+  sigma0,
+  sigma1,
+  addMod32,
+};
 
 /**
  * Performs a bitwise rotation to the right on a 32-bit field element.
@@ -62,24 +73,6 @@ function shiftRight(input: Field, r: number): Field {
 
   return Field.fromBits(outBinary);
 }
-/* 
-out = a&b ^ (!a)&c =>
-
-out = a*(b-c) + c
-
-pragma circom 2.0.0;
-
-template Ch_t(n) {
-    signal input a[n];
-    signal input b[n];
-    signal input c[n];
-    signal output out[n];
-
-    for (var k=0; k<n; k++) {
-        out[k] <== a[k] * (b[k]-c[k]) + c[k];
-    }
-}
- */
 
 /**
  * Performs the choice bitwise operation on three 32-bit field elements.
@@ -129,12 +122,12 @@ function ch(x: Field, y: Field, z: Field): Field {
  */
 function maj(x: Field, y: Field, z: Field): Field {
   /*
-  out = a&b ^ a&c ^ b&c  
-  out = a*b   +  a*c  +  b*c  -  2*a*b*c  
-  out = a*( b + c - 2*b*c ) + b*c 
-  mid = b*c
-  out = a*( b + c - 2*mid ) + mid
-   */
+    out = a&b ^ a&c ^ b&c  
+    out = a*b   +  a*c  +  b*c  -  2*a*b*c  
+    out = a*( b + c - 2*b*c ) + b*c 
+    mid = b*c
+    out = a*( b + c - 2*mid ) + mid
+     */
   const a = x.toBits(32).map((bit) => bit.toField());
   const b = y.toBits(32).map((bit) => bit.toField());
   const c = z.toBits(32).map((bit) => bit.toField());
@@ -260,88 +253,3 @@ function addMod32(...args: Field[]): Field {
 
   return sum;
 }
-
-const o1jsBitwise = {
-  shift32: (field: Field, bits: number) => {
-    let { remainder: shifted } = Gadgets.divMod32(
-      Gadgets.rotate64(field, bits, 'right')
-    );
-    return shifted;
-  },
-  ch: (x: Field, y: Field, z: Field): Field => {
-    const xy = Gadgets.and(x, y, 32);
-    const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
-
-    return Gadgets.xor(xy, _xz, 32);
-  },
-  maj: (x: Field, y: Field, z: Field): Field => {
-    const xy = Gadgets.and(x, y, 32);
-    const xz = Gadgets.and(x, z, 32);
-    const yz = Gadgets.and(y, z, 32);
-
-    return Gadgets.xor(Gadgets.xor(xy, xz, 32), yz, 32);
-  },
-  SIGMA0: (x: Field) => {
-    const rotr2 = Gadgets.rotate32(x, 2, 'right');
-    const rotr13 = Gadgets.rotate32(x, 13, 'right');
-    const rotr22 = Gadgets.rotate32(x, 22, 'right');
-
-    return Gadgets.xor(Gadgets.xor(rotr2, rotr13, 32), rotr22, 32);
-  },
-  SIGMA1: (x: Field) => {
-    const rotr6 = Gadgets.rotate32(x, 6, 'right');
-    const rotr11 = Gadgets.rotate32(x, 11, 'right');
-    const rotr25 = Gadgets.rotate32(x, 25, 'right');
-
-    return Gadgets.xor(Gadgets.xor(rotr6, rotr11, 32), rotr25, 32);
-  },
-  sigma0: (x: Field) => {
-    const rotr7 = Gadgets.rotate32(x, 7, 'right');
-    const rotr18 = Gadgets.rotate32(x, 18, 'right');
-    const shr3 = o1jsBitwise.shift32(x, 3);
-
-    const rotr7x18 = Gadgets.xor(rotr7, rotr18, 32);
-
-    return Gadgets.xor(rotr7x18, shr3, 32);
-  },
-  sigma1: (x: Field) => {
-    const rotr17 = Gadgets.rotate32(x, 17, 'right');
-    const rotr19 = Gadgets.rotate32(x, 19, 'right');
-    const shr10 = o1jsBitwise.shift32(x, 10);
-
-    return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
-  },
-  addMod32: (...args: Field[]): Field => {
-    let sum = Field(0);
-    for (const val of args) sum = Gadgets.addMod32(sum, val);
-
-    return sum;
-  },
-  prepareMessageSchedule(bits32Words: Field[]): Field[] {
-    const W = [...bits32Words];
-
-    for (let t = 16; t <= 63; t++) {
-      W[t] = o1jsBitwise.addMod32(
-        o1jsBitwise.sigma1(W[t - 2]),
-        W[t - 7],
-        o1jsBitwise.sigma0(W[t - 15]),
-        W[t - 16]
-      );
-    }
-
-    return W;
-  },
-};
-
-export {
-  rotateRight,
-  shiftRight,
-  ch,
-  maj,
-  SIGMA0,
-  SIGMA1,
-  sigma0,
-  sigma1,
-  addMod32,
-  o1jsBitwise,
-};

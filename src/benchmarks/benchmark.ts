@@ -5,12 +5,12 @@ import {
   nodeHash,
   nobleHash,
   generateRandomInput,
-} from './test-utils.js';
+} from '../test-utils.js';
 
 const { mark, compare, run } = bench;
+
 run(async () => {
   const iterations = 2500;
-  // console.log('\nIterations: ', iterations);
 
   const randomInputGenerator = () => generateRandomInput(70);
   await mark(

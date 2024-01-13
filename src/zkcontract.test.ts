@@ -1,5 +1,5 @@
 import { Sha256ZkApp } from './index.js';
-import { sha256 } from './sha256.js';
+import { sha256O1js } from './sha256.js';
 import { Field, Mina, PrivateKey, PublicKey, AccountUpdate } from 'o1js';
 
 /*
@@ -52,7 +52,7 @@ describe('Sha256ZkApp', () => {
     let digest: Field;
     try {
       digest = zkApp.h1.get();
-      const expectedDigest = sha256(Field(123456789));
+      const expectedDigest = sha256O1js(Field(123456789));
       // compare the initial public hash to the local o1js hash function
       // expect(digest).toStrictEqual(sha256(parseHashInput('o1js')));
       // for (let i=0; i<digest.length; i++) {

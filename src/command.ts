@@ -44,4 +44,3 @@ console.table([
     'Execution Time': noble.executionTime,
   },
 ]);
-export { Timer };

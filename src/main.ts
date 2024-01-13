@@ -1,7 +1,7 @@
 import { Sha256ZkApp } from './index.js';
 import { Field, Mina, PrivateKey, AccountUpdate } from 'o1js';
 
-const useProof = false;
+const useProof = true;
 
 const Local = Mina.LocalBlockchain({ proofsEnabled: useProof });
 Mina.setActiveInstance(Local);

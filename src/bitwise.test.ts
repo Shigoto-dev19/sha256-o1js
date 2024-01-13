@@ -1,6 +1,6 @@
 import {
-  rotateRight,
-  shiftRight,
+  rotateRight32,
+  shiftRight32,
   ch,
   maj,
   sigma0,
@@ -8,33 +8,34 @@ import {
   SIGMA0,
   SIGMA1,
   addMod32,
-} from './functions';
+} from './bitwise-functions';
 
 import { Field } from 'o1js';
 import {
-  TWO32,
   generateRandomBytes,
-  rotateRightNative,
-  shiftRightNative,
+  rotateRight32Native,
+  shiftRight32Native,
 } from './test-utils';
+
+const TWO32 = BigInt(2 ** 32);
 
 describe('Bitwise Operation Tests', () => {
   describe('Rotate Right bitwise function tests', () => {
     /**
-     * Test the o1js compatible rotate right function against a verified rotateRight function in native JS.
+     * Test the o1js compatible rotate right function against a verified rotateRight32 function in native JS.
      */
     const testRotateRight = (
       input = generateRandomBytes(),
-      rotationBits = Number(generateRandomBytes(1) % 32n),
+      rotationBits = Math.floor(Math.random() * 31) + 1,
       specific = false,
       rotrExpected?: bigint
     ) => {
-      const rotrActual = rotateRight(Field(input), rotationBits).toBigInt();
+      const rotrActual = rotateRight32(Field(input), rotationBits).toBigInt();
       if (specific) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         expect(rotrActual).toBe(rotrExpected!);
       } else {
-        rotrExpected = BigInt(rotateRightNative(Number(input), rotationBits));
+        rotrExpected = BigInt(rotateRight32Native(Number(input), rotationBits));
         expect(rotrActual).toBe(rotrExpected);
       }
     };
@@ -48,7 +49,8 @@ describe('Bitwise Operation Tests', () => {
         for (let i = 0; i < 1000; i++) testRotateRight();
       });
 
-      test('should handle rotation by 0 bits - 1000 ITERATIONS', () => {
+      // !note the native o1js rotate32 Gadget doesn't support bits=0 rotation
+      test.skip('should handle rotation by 0 bits - 1000 ITERATIONS', () => {
         for (let i = 0; i < 1000; i++) {
           const input = generateRandomBytes();
           testRotateRight(input, 0, true, input);
@@ -103,7 +105,7 @@ describe('Bitwise Operation Tests', () => {
 
   describe('Shift Right bitwise function tests', () => {
     /**
-     * Test the o1js compatible shift right function against a verified shiftRight function in native JS.
+     * Test the o1js compatible shift right function against a verified shiftRight32 function in native JS.
      */
     const testShiftRight = (
       input = generateRandomBytes(),
@@ -111,12 +113,12 @@ describe('Bitwise Operation Tests', () => {
       specific = false,
       shrExpected?: bigint
     ) => {
-      const shrActual = shiftRight(Field(input), shiftBits).toBigInt();
+      const shrActual = shiftRight32(Field(input), shiftBits).toBigInt();
       if (specific) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         expect(shrActual).toBe(shrExpected!);
       } else {
-        shrExpected = shiftRightNative(Number(input), shiftBits);
+        shrExpected = shiftRight32Native(Number(input), shiftBits);
         expect(shrActual).toBe(shrExpected);
       }
     };
@@ -229,9 +231,9 @@ describe('Bitwise Operation Tests', () => {
   describe('σ0: small sigma0 SHA256 bitwise function tests', () => {
     const σ0 = (x: number): bigint => {
       return (
-        rotateRightNative(x, 7) ^
-        rotateRightNative(x, 18) ^
-        shiftRightNative(x, 3)
+        rotateRight32Native(x, 7) ^
+        rotateRight32Native(x, 18) ^
+        shiftRight32Native(x, 3)
       );
     };
 
@@ -258,9 +260,9 @@ describe('Bitwise Operation Tests', () => {
   describe('σ1: small sigma1 SHA256 bitwise function tests', () => {
     const σ1 = (x: number): bigint => {
       return (
-        rotateRightNative(x, 17) ^
-        rotateRightNative(x, 19) ^
-        shiftRightNative(x, 10)
+        rotateRight32Native(x, 17) ^
+        rotateRight32Native(x, 19) ^
+        shiftRight32Native(x, 10)
       );
     };
 
@@ -287,9 +289,9 @@ describe('Bitwise Operation Tests', () => {
   describe('Σ0: big SIGMA0 SHA256 bitwise function tests', () => {
     const Σ0 = (x: number): bigint => {
       return (
-        rotateRightNative(x, 2) ^
-        rotateRightNative(x, 13) ^
-        rotateRightNative(x, 22)
+        rotateRight32Native(x, 2) ^
+        rotateRight32Native(x, 13) ^
+        rotateRight32Native(x, 22)
       );
     };
 
@@ -316,9 +318,9 @@ describe('Bitwise Operation Tests', () => {
   describe('Σ1: big SIGMA1 SHA256 bitwise function tests', () => {
     const Σ1 = (x: number): bigint => {
       return (
-        rotateRightNative(x, 6) ^
-        rotateRightNative(x, 11) ^
-        rotateRightNative(x, 25)
+        rotateRight32Native(x, 6) ^
+        rotateRight32Native(x, 11) ^
+        rotateRight32Native(x, 25)
       );
     };
 

@@ -1,25 +1,21 @@
 import { Field } from 'o1js';
-import { H as initialHashWords, K } from './constants.js';
-import {
-  ch,
-  maj,
-  SIGMA0,
-  SIGMA1,
-  addMod32,
-  prepareMessageSchedule,
-} from './bitwise-functions.js';
+import { H as initialHashWords, K } from '../../constants.js';
+import { ch, maj, SIGMA0, SIGMA1, addMod32 } from './bitwise-functions.js';
 
 import {
   padInput,
   parseBinaryTo512BitBlocks,
   parse512BitBlock,
   parseSha2Input,
-} from './preprocessing.js';
+  prepareMessageSchedule,
+} from '../../preprocessing.js';
+
+//! prepareMessageSchedule is the only function that uses native o1js bitwise functions
+//! --> it is utilized only once, that's why it doesn't have an effect(verified) on the circom implementation
 
 // The SHA-256 function of a string input
 type InputOptions = Field | string;
-
-export function sha256O1js<T extends InputOptions>(input: T): Field[] {
+export function sha256<T extends InputOptions>(input: T): Field[] {
   const H = [...initialHashWords];
 
   const parsedInput = parseSha2Input(input);

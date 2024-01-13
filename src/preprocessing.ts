@@ -1,7 +1,14 @@
 import { Field, Bool } from 'o1js';
 import { toBoolArray } from './binary-utils.js';
-import { addMod32, sigma0, sigma1 } from './functions.js';
+import { addMod32, sigma0, sigma1 } from './bitwise-functions.js';
 
+export {
+  padInput,
+  parseBinaryTo512BitBlocks,
+  parse512BitBlock,
+  parseSha2Input,
+  prepareMessageSchedule,
+};
 /**
  * Performs padding on the input according to the SHA-256 standards.
  *
@@ -149,11 +156,3 @@ function prepareMessageSchedule(bits32Words: Field[]): Field[] {
 
   return W;
 }
-
-export {
-  padInput,
-  parseBinaryTo512BitBlocks,
-  parse512BitBlock,
-  parseSha2Input,
-  prepareMessageSchedule,
-};
