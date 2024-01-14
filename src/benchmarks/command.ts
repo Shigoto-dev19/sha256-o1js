@@ -3,8 +3,8 @@ import {
   o1jsHash,
   nobleHash,
   Timer,
-  o1jsHashOP,
-} from './test-utils.js';
+} from '../test-utils.js';
+import { o1jsHashCircom } from '../test-utils.js';
 
 function benchmarkHash(hashFunction: typeof nobleHash, input: string) {
   const timer = new Timer();
@@ -17,7 +17,7 @@ function benchmarkHash(hashFunction: typeof nobleHash, input: string) {
 const input = process.argv[2] ?? '';
 
 const o1js = benchmarkHash(o1jsHash, input);
-const o1jsOP = benchmarkHash(o1jsHashOP, input);
+const o1jsCircom = benchmarkHash(o1jsHashCircom, input);
 const node = benchmarkHash(nodeHash, input);
 const noble = benchmarkHash(nobleHash, input);
 
@@ -29,9 +29,9 @@ console.table([
     'Execution Time': o1js.executionTime,
   },
   {
-    Step: 'o1js Hash Optimized',
-    Hash: o1jsOP.digest,
-    'Execution Time': o1jsOP.executionTime,
+    Step: 'o1js Hash Circom',
+    Hash: o1jsCircom.digest,
+    'Execution Time': o1jsCircom.executionTime,
   },
   {
     Step: 'node Hash',

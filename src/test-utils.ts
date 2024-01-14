@@ -1,8 +1,8 @@
 import { binaryToHex, fieldToBinary } from './binary-utils.js';
 import { sha256O1js } from './sha256.js';
-import { sha256 as sha256Circom } from './benchmarks/comparator/sha256-circom.js';
 import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
+import { sha256 as sha256Circom} from './benchmarks/comparator/sha256-circom.js';
 import * as crypto from 'crypto';
 
 const TWO32 = BigInt(2 ** 32);
@@ -15,9 +15,9 @@ export {
   generateRandomInput,
   generateRandomBytes,
   nodeHash,
-  o1jsHash,
-  o1jsHashOP,
   nobleHash,
+  o1jsHash,
+  o1jsHashCircom,
   Timer,
 };
 
@@ -123,15 +123,11 @@ function nodeHash(input: string): string {
   return crypto.createHash('sha256').update(input).digest('hex');
 }
 
-function o1jsHash(input: string): string {
-  const digest = sha256Circom(input);
-  const digestBinary = digest.map(fieldToBinary).join('');
-  const digestHex = binaryToHex(digestBinary);
-
-  return digestHex;
+function nobleHash(input: string): string {
+  return bytesToHex(nobleSha256(input));
 }
 
-function o1jsHashOP(input: string): string {
+function o1jsHash(input: string): string {
   const digest = sha256O1js(input);
   const digestBinary = digest.map(fieldToBinary).join('');
   const digestHex = binaryToHex(digestBinary);
@@ -139,10 +135,13 @@ function o1jsHashOP(input: string): string {
   return digestHex;
 }
 
-function nobleHash(input: string): string {
-  return bytesToHex(nobleSha256(input));
-}
+function o1jsHashCircom(input: string): string {
+  const digest = sha256Circom(input);
+  const digestBinary = digest.map(fieldToBinary).join('');
+  const digestHex = binaryToHex(digestBinary);
 
+  return digestHex;
+}
 class Timer {
   private startTime: number;
   private endTime: number;

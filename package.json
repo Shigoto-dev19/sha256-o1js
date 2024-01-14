@@ -21,8 +21,8 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "testw": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "lint": "npx eslint src/* --fix",
-    "digest": "node build/src/command.js",
-    "benchmark": "npm run build && node build/src/benchmark.js"
+    "digest": "node build/src/benchmarks/command.js",
+    "benchmark": "npm run build && node build/src/benchmarks/benchmark.js"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.4",
