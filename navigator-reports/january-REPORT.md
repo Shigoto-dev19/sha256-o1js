@@ -76,7 +76,7 @@
   - Adapt tests to the new optimize/native implementation
     - Some tests failed at the beginning
       - the direction of rotation should be explicit, that's why I wrapped it as a different function `rotateRight32`
-      - after debugging, I realized that native `Gadgets.rotate32` function doesn't support rotationBits=0 so the test case is skipped now 
+      - after debugging, I realized that native `Gadgets.rotate32` function doesn't support rotationBits=0 so the test case is skipped now
       - after checking --> all tests pass
 - Polish test-utils imports to reduce import redundancy(mainly from node crypto library)
 - Move all export objects from bottom to the top of files(all) for better readability.
@@ -85,3 +85,23 @@
 - Resturcturing and polishing the code took time and became a huge commit
   - Improve readability and code quality --> the project will still get bigger
   - This is crucial to separate operational code from other utility code
+
+### DAY5: 14-15th January
+
+- Add script argument to the `benchmark.ts` file
+  - now the script can be run with `npm run benchmark <iterations>` with iterations default set as 2500 when no arg is entered.
+  - Update the package.json script after project restructuring.
+- Move `command.ts` to the benchmarks directory and adapt code.
+- Add sha3-256 to the benchmarks --> result is it has the same performance as sha256 function which is good news
+  - for 2500 iterations, sha3 is slightly better in performance but that might because of the noise of input handling in sha256.
+    -note: the o1js sha3 input is limited to 32 bytes
+- Add witness benchmarks for poseidon, sha3_256 and sha256 in a new file called `sha256-witness.ts`
+  - Add script ==> `npm run witness-time`
+- Regarding that SHA256 will be used in most cases for using field i.e number instead of string in a circuit
+  - the input handling was quite different with o1js than other js/ts sha256 hash function, most of the function use **Uint8Array** as input if the input was desired to be a number.
+  - I was aiming to hash a field directly to simulate poseidon function inputs in o1js
+  - I adapted code to be compliant
+    - this was cumbersome, this step is always exhausting regarding that the avalance effect of the hash function always makes it difficult to track error source
+    - Add test cases for hashing inputs as field or Uint8Array
+    - tests pass but the hash function throws an error about pointing that the code is not provable when compiled
+    - send time debugging but might use input handling of Uint8Array similar to what's released in o1js SHA3_256
