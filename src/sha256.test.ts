@@ -1,4 +1,14 @@
-import { o1jsHash, nodeHash, generateRandomInput } from './test-utils';
+import { Field } from 'o1js';
+import {
+  o1jsHash,
+  nodeHash,
+  o1jsHashField,
+  generateRandomInput,
+  bigToUint8Array,
+  generateRandomBytes,
+} from './test-utils';
+import { bytesToHex } from '@noble/hashes/utils';
+import { sha256 as nobleHashUint } from '@noble/hashes/sha256';
 
 // NIST test vectors (https://www.di-mgt.com.au/sha_testvectors.html)
 // Note: - Input message: one million (1,000,000) repetitions of the character "a" (0x61).
@@ -126,5 +136,23 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     // Fill with random data
     for (let i = 0; testWindow768.length; i++)
       testWindow768[i] = generateRandomInput(768);
+  });
+
+  test.only('should have compliant digest for input=random Field/Uint8Array', () => {
+    const input = generateRandomBytes(31);
+    const actualDigest = o1jsHashField(Field(input));
+    const expectedDigest = bytesToHex(nobleHashUint(bigToUint8Array(input)));
+
+    expect(actualDigest).toBe(expectedDigest);
+  });
+
+  test.only('should have compliant digest for input=random Field/Uint8Array - 100 iterations', () => {
+    for (let i = 0; i < 100; i++) {
+      let input = generateRandomBytes(31);
+      let actualDigest = o1jsHashField(Field(input));
+      let expectedDigest = bytesToHex(nobleHashUint(bigToUint8Array(input)));
+
+      expect(actualDigest).toBe(expectedDigest);
+    }
   });
 });

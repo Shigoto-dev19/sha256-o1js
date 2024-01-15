@@ -72,6 +72,24 @@ function splitArrayIntoBlocks(inputArray: Bool[]): Field[] {
   return blocks;
 }
 
+function calculateBytes(field: Field): number {
+  const bigIntValue = field.toBigInt();
+  if (bigIntValue < 0n) {
+    throw new Error('Input must be a non-negative BigInt.');
+  }
+
+  // Calculate the number of bytes
+  let bytes = 0;
+  let value = bigIntValue;
+
+  while (value > 0n) {
+    value >>= 8n; // Right shift by 8 bits (1 byte)
+    bytes++;
+  }
+
+  return Math.max(bytes, 1); // Ensure at least 1 byte for zero
+}
+
 /**
  * Parses the input (string or Field) into an array of Fields for SHA-256 processing in zkapp.
  *
@@ -86,7 +104,7 @@ function parseSha2Input(input: string | Field): Field[] {
   let inputBinary: Bool[];
 
   if (typeof input === 'string') inputBinary = toBoolArray(input);
-  else inputBinary = input.toBits();
+  else inputBinary = input.toBits(calculateBytes(input) * 8).reverse();
 
   const parsedInput = splitArrayIntoBlocks(inputBinary);
 

@@ -2,8 +2,9 @@ import { binaryToHex, fieldToBinary } from './binary-utils.js';
 import { sha256O1js } from './sha256.js';
 import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
-import { sha256 as sha256Circom} from './benchmarks/comparator/sha256-circom.js';
+import { sha256 as sha256Circom } from './benchmarks/comparator/sha256-circom.js';
 import * as crypto from 'crypto';
+import { Field } from 'o1js';
 
 const TWO32 = BigInt(2 ** 32);
 
@@ -14,9 +15,11 @@ export {
   generateRandomString,
   generateRandomInput,
   generateRandomBytes,
+  bigToUint8Array,
   nodeHash,
   nobleHash,
   o1jsHash,
+  o1jsHashField,
   o1jsHashCircom,
   Timer,
 };
@@ -119,8 +122,42 @@ function generateRandomBytes(byteNumber = 4): bigint {
   return BigInt('0x' + randomBytes.toString('hex'));
 }
 
+function bigToUint8Array(big: bigint) {
+  const big0 = BigInt(0);
+  const big1 = BigInt(1);
+  const big8 = BigInt(8);
+
+  if (big < big0) {
+    const bits: bigint = (BigInt(big.toString(2).length) / big8 + big1) * big8;
+    const prefix1: bigint = big1 << bits;
+    big += prefix1;
+  }
+  let hex = big.toString(16);
+  if (hex.length % 2) {
+    hex = '0' + hex;
+  }
+  const len = hex.length / 2;
+  const u8 = new Uint8Array(len);
+  let i = 0;
+  let j = 0;
+  while (i < len) {
+    u8[i] = parseInt(hex.slice(j, j + 2), 16);
+    i += 1;
+    j += 2;
+  }
+  return u8;
+}
+
 function nodeHash(input: string): string {
   return crypto.createHash('sha256').update(input).digest('hex');
+}
+
+function o1jsHashField(input: Field): string {
+  const digest = sha256O1js(input);
+  const digestBinary = digest.map(fieldToBinary).join('');
+  const digestHex = binaryToHex(digestBinary);
+
+  return digestHex;
 }
 
 function nobleHash(input: string): string {

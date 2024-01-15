@@ -12,8 +12,8 @@ class Bytes32 extends Bytes(32) {}
 function o1jsSha3_256(input: string) {
   const parsedInput = Bytes32.fromString(input);
   const sha3Digest = Hash.SHA3_256.hash(parsedInput);
-  
-  return sha3Digest
+
+  return sha3Digest;
 }
 
 const { mark, compare, run } = bench;

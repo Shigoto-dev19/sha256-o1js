@@ -1,9 +1,4 @@
-import {
-  nodeHash,
-  o1jsHash,
-  nobleHash,
-  Timer,
-} from '../test-utils.js';
+import { nodeHash, o1jsHash, nobleHash, Timer } from '../test-utils.js';
 import { o1jsHashCircom } from '../test-utils.js';
 
 function benchmarkHash(hashFunction: typeof nobleHash, input: string) {
