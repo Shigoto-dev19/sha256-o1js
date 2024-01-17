@@ -105,3 +105,24 @@
     - Add test cases for hashing inputs as field or Uint8Array
     - tests pass but the hash function throws an error about pointing that the code is not provable when compiled
     - send time debugging but might use input handling of Uint8Array similar to what's released in o1js SHA3_256
+
+### DAY6: 17th January
+  - The compiler doesn't differentiate when provable and non-provable code should be used
+    - There can be some solutions using `Provable.if` or `Provable.asProve` but there are some constraints that I would like to point to
+      - `Provable.if` only supports a single field type, that's why a desirable Field[], Bool[] etc... are not possible to retrieve from such a method
+      - `Provable.asProver` returns void and upper-scope variables are cannot be read inside its callback, that's why, it makes it not usable in many cases.
+  - Update sha256 inputs to provable Bytes type the same as the o1js keccak release
+    - Now the input type is only Bytes which take string bytified or number as bytes directly.
+    - I learned a lot about using advanced types in o1js
+      - The bytes input are flexible but the size of the bytes should static and declared inside the contract!
+      - Update test-util random input generator for both strings and Uint8array type
+      - Omit redundant code that separated between string and Field input types
+      - Update tests and verify integrity
+      - check that project code is functional, provable, and deployable.
+    - constraint logs are showing an error, maybe the Circuit API is not yet updated to the Bytes provable type
+    - After a lot of debugging --> all other scripts work
+      - Deployable main.ts
+      - ProofsEnable Deployable main.ts
+      - zkcontract tests
+      - witness-time script
+      - benchmarks
