@@ -1,6 +1,14 @@
 import { Sha256ZkApp } from './index.js';
 import { sha256O1js } from './sha256.js';
-import { Field, Mina, PrivateKey, PublicKey, AccountUpdate } from 'o1js';
+import {
+  Field,
+  Mina,
+  PrivateKey,
+  PublicKey,
+  AccountUpdate,
+  Bytes,
+  Provable,
+} from 'o1js';
 
 /*
  * This file specifies how to test the `Add` example smart contract. It is safe to delete this file and replace
@@ -52,12 +60,7 @@ describe('Sha256ZkApp', () => {
     let digest: Field;
     try {
       digest = zkApp.h1.get();
-      const expectedDigest = sha256O1js(Field(123456789));
-      // compare the initial public hash to the local o1js hash function
-      // expect(digest).toStrictEqual(sha256(parseHashInput('o1js')));
-      // for (let i=0; i<digest.length; i++) {
-      //   digest[i].assertEquals(expectedDigest[i])
-      // }
+      const expectedDigest = sha256O1js(Bytes.fromString('abc'));
     } catch (error) {
       console.log(error);
     }
@@ -67,7 +70,9 @@ describe('Sha256ZkApp', () => {
     await localDeploy();
 
     // update transaction
-    const x = Field(123456789);
+    class Bytes3 extends Bytes(3) {}
+    const x = Provable.witness(Bytes3.provable, () => Bytes3.fromString('abc'));
+    // const x = Bytes.fromString('abc');
     const txn = await Mina.transaction(senderAccount, () => {
       zkApp.hash(x);
     });

@@ -1,4 +1,4 @@
-import { Field, Bool } from 'o1js';
+import { Field, Bool, Bytes } from 'o1js';
 import { toBoolArray } from './binary-utils.js';
 import { addMod32, sigma0, sigma1 } from './bitwise-functions.js';
 
@@ -72,24 +72,6 @@ function splitArrayIntoBlocks(inputArray: Bool[]): Field[] {
   return blocks;
 }
 
-function calculateBytes(field: Field): number {
-  const bigIntValue = field.toBigInt();
-  if (bigIntValue < 0n) {
-    throw new Error('Input must be a non-negative BigInt.');
-  }
-
-  // Calculate the number of bytes
-  let bytes = 0;
-  let value = bigIntValue;
-
-  while (value > 0n) {
-    value >>= 8n; // Right shift by 8 bits (1 byte)
-    bytes++;
-  }
-
-  return Math.max(bytes, 1); // Ensure at least 1 byte for zero
-}
-
 /**
  * Parses the input (string or Field) into an array of Fields for SHA-256 processing in zkapp.
  *
@@ -100,11 +82,15 @@ function calculateBytes(field: Field): number {
  * @returns {Field[]} An array of Fields representing the parsed input for SHA-256 in zkapp.
  *
  */
-function parseSha2Input(input: string | Field): Field[] {
+function parseSha2Input(input: string | Bytes): Field[] {
   let inputBinary: Bool[];
 
   if (typeof input === 'string') inputBinary = toBoolArray(input);
-  else inputBinary = input.toBits(calculateBytes(input) * 8).reverse();
+  else
+    inputBinary = input
+      .toFields()
+      .map((f) => f.toBits(8).reverse())
+      .flat();
 
   const parsedInput = splitArrayIntoBlocks(inputBinary);
 

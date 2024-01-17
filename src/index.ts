@@ -1,9 +1,10 @@
-import { Field, SmartContract, state, State, method } from 'o1js';
+import { Field, SmartContract, state, State, method, Bytes } from 'o1js';
 import { sha256O1js } from './sha256.js';
+class Bytes3 extends Bytes(3) {}
 
 const o1jsDigest = [
-  124246274, 3652808864, 113200783, 2811496515, 169711656, 1835052556,
-  198289410, 3169118214,
+  3128432319, 2399260650, 1094795486, 1571693091, 2953011619, 2518121116,
+  3021012833, 4060091821,
 ].map(Field);
 
 export class Sha256ZkApp extends SmartContract {
@@ -30,7 +31,7 @@ export class Sha256ZkApp extends SmartContract {
     this.h8.set(o1jsDigest[7]);
   }
 
-  @method hash(x: Field) {
+  @method hash(x: Bytes3) {
     const p1 = this.h1.getAndRequireEquals();
     const p2 = this.h2.getAndRequireEquals();
     const p3 = this.h3.getAndRequireEquals();

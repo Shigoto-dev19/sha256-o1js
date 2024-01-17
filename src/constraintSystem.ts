@@ -1,7 +1,17 @@
-import { Poseidon, Field, Circuit, circuitMain, public_ } from 'o1js';
+import {
+  Poseidon,
+  Field,
+  Circuit,
+  circuitMain,
+  public_,
+  Bytes,
+  Provable,
+} from 'o1js';
 import { Gate } from '../node_modules/o1js/dist/node/snarky';
 import { sha256O1js } from './sha256.js';
 import { Timer } from './test-utils.js';
+
+class Bytes32 extends Bytes(32) {}
 
 function calculateCircuitWires(inputArray: Gate[]) {
   let wireSum = 0;
@@ -63,7 +73,7 @@ function logCircuitStats(params: CircuitStats) {
   const kp = await PoseidonCircuit.generateKeypair();
   kgTimer.end();
 
-  const preimage = Field.from(Field.ORDER - 1n);
+  const preimage = Field(-1);
   const publicInput = Poseidon.hash([preimage]);
 
   console.log('prove...');
@@ -105,7 +115,7 @@ function logCircuitStats(params: CircuitStats) {
    */
   class Sha256Circuit extends Circuit {
     @circuitMain
-    static main(preimage: Field, @public_ hash1: Field) {
+    static main(preimage: Bytes32, @public_ hash1: Field) {
       sha256O1js(preimage)[0].assertEquals(hash1);
     }
   }
@@ -115,7 +125,7 @@ function logCircuitStats(params: CircuitStats) {
   const kp = await Sha256Circuit.generateKeypair();
   kgTimer.end();
 
-  const preimage = Field.from(Field.ORDER - 1n);
+  const preimage = Provable.witness(Bytes32.provable, () => Bytes32.random());
   const publicInput = sha256O1js(preimage)[0];
 
   console.log('prove...');
@@ -138,7 +148,7 @@ function logCircuitStats(params: CircuitStats) {
 
   const poseidonStats: CircuitStats = {
     circuit: 'Sha256',
-    preimage: preimage.toBigInt(),
+    preimage: BigInt('0x' + preimage.toHex()),
     kgTimer,
     pvTimer,
     vfTimer,

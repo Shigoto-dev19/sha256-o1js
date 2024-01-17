@@ -1,4 +1,4 @@
-import { Field } from 'o1js';
+import { Field, Bytes } from 'o1js';
 import { H as initialHashWords, K } from './constants.js';
 import {
   ch,
@@ -16,10 +16,7 @@ import {
   parseSha2Input,
 } from './preprocessing.js';
 
-// The SHA-256 function of a string input
-type InputOptions = Field | string;
-
-export function sha256O1js<T extends InputOptions>(input: T): Field[] {
+export function sha256O1js(input: Bytes): Field[] {
   const H = [...initialHashWords];
 
   const parsedInput = parseSha2Input(input);

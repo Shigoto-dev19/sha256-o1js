@@ -1,5 +1,7 @@
 import { Sha256ZkApp } from './index.js';
-import { Field, Mina, PrivateKey, AccountUpdate } from 'o1js';
+import { Mina, PrivateKey, AccountUpdate, Bytes } from 'o1js';
+
+class Bytes3 extends Bytes(3) {}
 
 const useProof = true;
 
@@ -41,7 +43,7 @@ console.log('Part 8/8 of expected digest:', zkAppInstance.h8.get().toString());
 // ----------------------------------------------------
 
 const txn1 = await Mina.transaction(senderAccount, () => {
-  const x = Field(123456789);
+  const x = Bytes3.fromString('abc');
   zkAppInstance.hash(x);
 });
 await txn1.prove();

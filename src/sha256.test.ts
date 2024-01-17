@@ -1,12 +1,4 @@
-import { Field } from 'o1js';
-import {
-  o1jsHash,
-  nodeHash,
-  o1jsHashField,
-  generateRandomInput,
-  bigToUint8Array,
-  generateRandomBytes,
-} from './test-utils';
+import { o1jsHash, nodeHash, generateRandomInput } from './test-utils';
 import { bytesToHex } from '@noble/hashes/utils';
 import { sha256 as nobleHashUint } from '@noble/hashes/sha256';
 
@@ -82,13 +74,13 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
   });
 
   test('should have compliant digest for input=random', () => {
-    const input = generateRandomInput();
+    const input = generateRandomInput() as string;
     testSha256(input);
   });
 
   test('should have compliant digest for input=random - 100 iterations', () => {
     for (let i = 0; i < 100; i++) {
-      let input = generateRandomInput(70);
+      let input = generateRandomInput(70) as string;
       testSha256(input);
     }
   });
@@ -135,22 +127,22 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     let testWindow768 = new Array<string>(256 * 3);
     // Fill with random data
     for (let i = 0; testWindow768.length; i++)
-      testWindow768[i] = generateRandomInput(768);
+      testWindow768[i] = generateRandomInput(768) as string;
   });
 
-  test.only('should have compliant digest for input=random Field/Uint8Array', () => {
-    const input = generateRandomBytes(31);
-    const actualDigest = o1jsHashField(Field(input));
-    const expectedDigest = bytesToHex(nobleHashUint(bigToUint8Array(input)));
+  test('should have compliant digest for input=randomUint8Array', () => {
+    const input = generateRandomInput(31, true);
+    const actualDigest = o1jsHash(input);
+    const expectedDigest = bytesToHex(nobleHashUint(input));
 
     expect(actualDigest).toBe(expectedDigest);
   });
 
-  test.only('should have compliant digest for input=random Field/Uint8Array - 100 iterations', () => {
+  test('should have compliant digest for input=randomUint8Array - 100 iterations', () => {
     for (let i = 0; i < 100; i++) {
-      let input = generateRandomBytes(31);
-      let actualDigest = o1jsHashField(Field(input));
-      let expectedDigest = bytesToHex(nobleHashUint(bigToUint8Array(input)));
+      let input = generateRandomInput(31, true);
+      let actualDigest = o1jsHash(input);
+      let expectedDigest = bytesToHex(nobleHashUint(input));
 
       expect(actualDigest).toBe(expectedDigest);
     }

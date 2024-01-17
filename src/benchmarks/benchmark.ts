@@ -29,7 +29,7 @@ run(async () => {
   );
 
   await compare(`\nSHA256 Benchmarks => ${iterations} iterations`, iterations, {
-    o1jsSha3_256: () => o1jsSha3_256(generateRandomInput(33)),
+    o1jsSha3_256: () => o1jsSha3_256(generateRandomInput(33) as string),
     o1jsSha256Circom: () => o1jsHashCircom(randomInputGenerator()),
     o1jsSha256Gadgets: () => o1jsHash(randomInputGenerator()),
     nodeSha256: () => nodeHash(randomInputGenerator()),

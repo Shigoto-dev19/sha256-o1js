@@ -4,7 +4,7 @@ import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import { sha256 as sha256Circom } from './benchmarks/comparator/sha256-circom.js';
 import * as crypto from 'crypto';
-import { Field } from 'o1js';
+import { Field, Bytes } from 'o1js';
 
 const TWO32 = BigInt(2 ** 32);
 
@@ -19,7 +19,6 @@ export {
   nodeHash,
   nobleHash,
   o1jsHash,
-  o1jsHashField,
   o1jsHashCircom,
   Timer,
 };
@@ -100,7 +99,9 @@ function generateRandomNumber(max: number): number {
  * @note
  * This function is mainly used in the file: `./sha256.test.ts`
  */
-function generateRandomInput(max = 1000): string {
+function generateRandomInput(max = 1000, bytes = false): string | Uint8Array {
+  if (bytes) return crypto.randomBytes(max);
+
   const randomLength = generateRandomNumber(max);
   const randomInput = generateRandomString(randomLength);
 
@@ -148,32 +149,40 @@ function bigToUint8Array(big: bigint) {
   return u8;
 }
 
-function nodeHash(input: string): string {
+function nodeHash(input: string | Uint8Array): string {
   return crypto.createHash('sha256').update(input).digest('hex');
 }
 
-function o1jsHashField(input: Field): string {
-  const digest = sha256O1js(input);
-  const digestBinary = digest.map(fieldToBinary).join('');
-  const digestHex = binaryToHex(digestBinary);
+// function o1jsHashField(input: Field): string {
+//   const digest = sha256O1js(Bytes.from(Field.toBytes(input)));
+//   const digestBinary = digest.map(fieldToBinary).join('');
+//   const digestHex = binaryToHex(digestBinary);
 
-  return digestHex;
-}
+//   return digestHex;
+// }
 
-function nobleHash(input: string): string {
+function nobleHash(input: string | Uint8Array): string {
   return bytesToHex(nobleSha256(input));
 }
 
-function o1jsHash(input: string): string {
-  const digest = sha256O1js(input);
+function o1jsHash(input: string | Uint8Array): string {
+  let digest: Field[];
+  if (typeof input === 'string') {
+    digest = sha256O1js(Bytes.fromString(input));
+  } else digest = sha256O1js(Bytes.from(input));
+
   const digestBinary = digest.map(fieldToBinary).join('');
   const digestHex = binaryToHex(digestBinary);
 
   return digestHex;
 }
 
-function o1jsHashCircom(input: string): string {
-  const digest = sha256Circom(input);
+function o1jsHashCircom(input: string | Uint8Array): string {
+  let digest: Field[];
+  if (typeof input === 'string') {
+    digest = sha256Circom(Bytes.fromString(input));
+  } else digest = sha256Circom(Bytes.from(input));
+
   const digestBinary = digest.map(fieldToBinary).join('');
   const digestHex = binaryToHex(digestBinary);
 
