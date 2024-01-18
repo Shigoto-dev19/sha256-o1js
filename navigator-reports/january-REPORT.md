@@ -107,6 +107,7 @@
     - send time debugging but might use input handling of Uint8Array similar to what's released in o1js SHA3_256
 
 ### DAY6: 17th January
+
   - The compiler doesn't differentiate when provable and non-provable code should be used
     - There can be some solutions using `Provable.if` or `Provable.asProve` but there are some constraints that I would like to point to
       - `Provable.if` only supports a single field type, that's why a desirable Field[], Bool[] etc... are not possible to retrieve from such a method
@@ -126,3 +127,18 @@
       - zkcontract tests
       - witness-time script
       - benchmarks
+
+### DAY7: 18th January
+
+- Use `bytesToWord` and `wordToBytes` functions using code imported from `./o1js/src/lib/gadgets/bit-slices.ts`.
+- Set the main o1js sha256 output to bytes to be compliant with the o1js sha3 release.
+- Change index.ts to handle bytes output as a poseidon digest => enables single field assertion.
+- Adapt zkcontract and main.ts code for successfull deployment
+- All tests pass but benchmarks show that the sha256 is two times slower than before which raises a big question for me.
+- The contrainSystem files for sha256 is still not running, which still gives me supspicions about Bytes32 compatibility with the o1js Circuit API.
+- Learn more about o1js advanced types and realize that ``Provable.array(ProableType, num)` solve the issue I pointed to yesterday about array non-compliance with `Provable.witness`
+- After the changes I made follwing sha3 release
+  - The code became more flexible with the bytes capacity
+  - The o1js sha256 becomes 2x slower than before
+  - It is more difficult to use --> even for me as a developer to debug and adapt changes
+  - --> I think the best input handling format should be sth similar to Poseidon.hash by get an array of fields.
