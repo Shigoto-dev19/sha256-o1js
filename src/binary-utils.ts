@@ -1,4 +1,4 @@
-import { Field, Bool } from 'o1js';
+import { Field, Bool, Provable, UInt8 } from 'o1js';
 
 export {
   fieldToBinary,
@@ -7,6 +7,8 @@ export {
   toBinaryString,
   binaryStringToBoolArray,
   boolArrayToBinaryString,
+  bytesToWord,
+  wordToBytes,
 };
 
 /**
@@ -39,15 +41,6 @@ function binaryToHex(x: BinaryString): string {
   }
 
   return result;
-}
-
-/**
- * Checks if a string is only a combination of '0's and '1's.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function isBinaryString(input: string | number): boolean {
-  if (typeof input == 'number') throw new Error();
-  return /^[01]*$/.test(input);
 }
 
 /**
@@ -113,4 +106,36 @@ function boolArrayToBinaryString(input: Bool[]): BinaryString {
  */
 function toBinaryString(input: string | number): BinaryString {
   return boolArrayToBinaryString(toBoolArray(input));
+}
+
+// conversion between bytes and multi-byte words
+
+/**
+ * !copied from ./o1js/src/lib/gadgets/bit-slices.ts
+ * Convert an array of UInt8 to a Field element. Expects little endian representation.
+ */
+function bytesToWord(wordBytes: UInt8[]): Field {
+  return wordBytes.reduce((acc, byte, idx) => {
+    const shift = 1n << BigInt(8 * idx);
+    return acc.add(byte.value.mul(shift));
+  }, Field.from(0));
+}
+
+/**
+ * !copied from ./o1js/src/lib/gadgets/bit-slices.ts
+ * Convert a Field element to an array of UInt8. Expects little endian representation.
+ * @param bytesPerWord number of bytes per word
+ */
+function wordToBytes(word: Field, bytesPerWord = 8): UInt8[] {
+  let bytes = Provable.witness(Provable.Array(UInt8, bytesPerWord), () => {
+    let w = word.toBigInt();
+    return Array.from({ length: bytesPerWord }, (_, k) =>
+      UInt8.from((w >> BigInt(8 * k)) & 0xffn)
+    );
+  });
+
+  // check decomposition
+  bytesToWord(bytes).assertEquals(word);
+
+  return bytes;
 }

@@ -59,7 +59,7 @@ describe('Sha256ZkApp', () => {
 
     let digest: Field;
     try {
-      digest = zkApp.h1.get();
+      digest = zkApp.publicInput.get();
       const expectedDigest = sha256O1js(Bytes.fromString('abc'));
     } catch (error) {
       console.log(error);

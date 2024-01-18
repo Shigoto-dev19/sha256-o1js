@@ -116,7 +116,9 @@ function logCircuitStats(params: CircuitStats) {
   class Sha256Circuit extends Circuit {
     @circuitMain
     static main(preimage: Bytes32, @public_ hash1: Field) {
-      sha256O1js(preimage)[0].assertEquals(hash1);
+      const digest = Poseidon.hash(sha256O1js(preimage).toFields());
+      digest.assertEquals(hash1);
+      // for (let i=0; i<32; i++) digest[i].assertEquals(hash1[i]);
     }
   }
 
@@ -126,7 +128,7 @@ function logCircuitStats(params: CircuitStats) {
   kgTimer.end();
 
   const preimage = Provable.witness(Bytes32.provable, () => Bytes32.random());
-  const publicInput = sha256O1js(preimage)[0];
+  const publicInput = sha256O1js(preimage);
 
   console.log('prove...');
   const pvTimer = new Timer();

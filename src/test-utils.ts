@@ -166,15 +166,12 @@ function nobleHash(input: string | Uint8Array): string {
 }
 
 function o1jsHash(input: string | Uint8Array): string {
-  let digest: Field[];
+  let digest: Bytes;
   if (typeof input === 'string') {
     digest = sha256O1js(Bytes.fromString(input));
   } else digest = sha256O1js(Bytes.from(input));
 
-  const digestBinary = digest.map(fieldToBinary).join('');
-  const digestHex = binaryToHex(digestBinary);
-
-  return digestHex;
+  return digest.toHex();
 }
 
 function o1jsHashCircom(input: string | Uint8Array): string {

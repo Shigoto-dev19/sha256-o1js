@@ -42,57 +42,18 @@ function padInput(input: Field[]): Bool[] {
   return inputBinary;
 }
 
-function splitArrayIntoBlocks(inputArray: Bool[]): Field[] {
-  const blockSize = 8;
-
-  // Calculate the number of blocks
-  const blockCount = Math.ceil(inputArray.length / blockSize);
-
-  // Create an array to store the blocks
-  const blocks: Field[] = [];
-
-  // Iterate through each block
-  for (let i = 0; i < blockCount; i++) {
-    // Calculate the start and end indices for the current block
-    const start = i * blockSize;
-    const end = start + blockSize;
-
-    // Extract the current block from the input array
-    const currentBlock = inputArray.slice(start, end);
-
-    // Pad the block with zeros if necessary
-    while (currentBlock.length < blockSize) {
-      currentBlock.push(Bool(false));
-    }
-
-    // Add the block to the result array
-    blocks.push(Field.fromBits(currentBlock));
-  }
-
-  return blocks;
-}
-
 /**
- * Parses the input (string or Field) into an array of Fields for SHA-256 processing in zkapp.
+ * Reverse the input bytes endianess and converts them into an array of Fields.
  *
- * This function takes either a string or a Field as input, converts it to a boolean array,
- * and then splits it into blocks of Fields, ensuring compatibility with zkapp inputs.
- *
- * @param {string | Field} input - The input to be parsed into an array of Fields.
+ * @param {Bytes} input - The input to be parsed into an array of Fields.
  * @returns {Field[]} An array of Fields representing the parsed input for SHA-256 in zkapp.
  *
  */
-function parseSha2Input(input: string | Bytes): Field[] {
-  let inputBinary: Bool[];
-
-  if (typeof input === 'string') inputBinary = toBoolArray(input);
-  else
-    inputBinary = input
-      .toFields()
-      .map((f) => f.toBits(8).reverse())
-      .flat();
-
-  const parsedInput = splitArrayIntoBlocks(inputBinary);
+function parseSha2Input(input: Bytes): Field[] {
+  const parsedInput = input
+    .toFields()
+    .map((f) => f.toBits(8).reverse())
+    .map((bits) => Field.fromBits(bits));
 
   return parsedInput;
 }

@@ -30,16 +30,10 @@ const deployTxn = await Mina.transaction(deployerAccount, () => {
 await deployTxn.sign([deployerKey, zkAppPrivateKey]).send();
 
 // get the initial state of Square after deployment
-const digestInit = zkAppInstance.h1.get();
+const digestInit = zkAppInstance.publicInput.get();
 
-console.log('Part 1/8 of expected digest:', digestInit.toString());
-console.log('Part 2/8 of expected digest:', zkAppInstance.h2.get().toString());
-console.log('Part 3/8 of expected digest:', zkAppInstance.h3.get().toString());
-console.log('Part 4/8 of expected digest:', zkAppInstance.h4.get().toString());
-console.log('Part 5/8 of expected digest:', zkAppInstance.h5.get().toString());
-console.log('Part 6/8 of expected digest:', zkAppInstance.h6.get().toString());
-console.log('Part 7/8 of expected digest:', zkAppInstance.h7.get().toString());
-console.log('Part 8/8 of expected digest:', zkAppInstance.h8.get().toString());
+console.log('expected digest:', digestInit.toString());
+
 // ----------------------------------------------------
 
 const txn1 = await Mina.transaction(senderAccount, () => {

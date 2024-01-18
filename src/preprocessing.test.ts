@@ -11,6 +11,7 @@ import {
   boolArrayToBinaryString,
 } from './binary-utils';
 import { generateRandomString } from './test-utils';
+import { Bytes } from 'o1js';
 
 describe('Binary Conversion Tests', () => {
   test('should have correct number=24 to binary conversion', () => {
@@ -43,14 +44,14 @@ describe('Preprocessing Tests', () => {
     // append the length as binary
     expected += toBinaryString(24);
 
-    const actual = padInput(parseSha2Input('abc'));
+    const actual = padInput(parseSha2Input(Bytes.fromString('abc')));
     const actualFormatted = boolArrayToBinaryString(actual);
 
     expect(actualFormatted).toBe(expected);
   });
 
   test('should have correct padding for the string=empty', () => {
-    const actual = padInput(parseSha2Input(''));
+    const actual = padInput(parseSha2Input(Bytes.fromString('')));
     const actualFormatted = boolArrayToBinaryString(actual);
 
     let expected = '1' + '0'.repeat(511);
@@ -60,7 +61,7 @@ describe('Preprocessing Tests', () => {
   });
 
   test('should correctly reverse Field parsing[§5.2.1] to binary for input=abc', () => {
-    const input = padInput(parseSha2Input('abc'));
+    const input = padInput(parseSha2Input(Bytes.fromString('abc')));
     const input512Blocks = parseBinaryTo512BitBlocks(input);
     const input32Blocks = parse512BitBlock(input512Blocks[0]);
 
@@ -73,7 +74,7 @@ describe('Preprocessing Tests', () => {
   test('should reverse Field parsing[§5.2.1] to binary for input=random - 1000 iterations', () => {
     for (let i = 0; i < 1000; i++) {
       let inputRandom = generateRandomString(5);
-      let padded = padInput(parseSha2Input(inputRandom));
+      let padded = padInput(parseSha2Input(Bytes.fromString(inputRandom)));
       let input512Blocks = parseBinaryTo512BitBlocks(padded);
       let input32Blocks = parse512BitBlock(input512Blocks[0]);
 
@@ -87,7 +88,7 @@ describe('Preprocessing Tests', () => {
   test('should reverse Field parsing[§5.2.1] to binary for input=randomLong - 1000 iterations', () => {
     for (let i = 0; i < 1000; i++) {
       let inputRandom = generateRandomString(100);
-      let padded = padInput(parseSha2Input(inputRandom));
+      let padded = padInput(parseSha2Input(Bytes.fromString(inputRandom)));
       let input512Blocks = parseBinaryTo512BitBlocks(padded);
       let input32Blocks = input512Blocks.map(parse512BitBlock).flat();
 

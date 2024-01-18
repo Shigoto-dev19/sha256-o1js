@@ -1,4 +1,4 @@
-import { Field, Bytes } from 'o1js';
+import { Bytes } from 'o1js';
 import { H as initialHashWords, K } from './constants.js';
 import {
   ch,
@@ -15,8 +15,9 @@ import {
   parse512BitBlock,
   parseSha2Input,
 } from './preprocessing.js';
+import { wordToBytes } from './binary-utils.js';
 
-export function sha256O1js(input: Bytes): Field[] {
+export function sha256O1js(input: Bytes): Bytes {
   const H = [...initialHashWords];
 
   const parsedInput = parseSha2Input(input);
@@ -61,5 +62,7 @@ export function sha256O1js(input: Bytes): Field[] {
     H[7] = addMod32(h, H[7]);
   }
 
-  return H;
+  // the message schedule is converted to big endian bytes
+  // wordToBytes expects little endian, so we reverse the bytes
+  return Bytes.from(H.map((x) => wordToBytes(x, 4).reverse()).flat());
 }
