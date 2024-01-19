@@ -1,10 +1,10 @@
-import { binaryToHex, fieldToBinary } from './binary-utils.js';
+import { binaryToHex, uint32ToBinary } from './binary-utils.js';
 import { sha256O1js } from './sha256.js';
 import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import { sha256 as sha256Circom } from './benchmarks/comparator/sha256-circom.js';
 import * as crypto from 'crypto';
-import { Field, Bytes } from 'o1js';
+import { Bytes, UInt32 } from 'o1js';
 
 const TWO32 = BigInt(2 ** 32);
 
@@ -155,7 +155,7 @@ function nodeHash(input: string | Uint8Array): string {
 
 // function o1jsHashField(input: Field): string {
 //   const digest = sha256O1js(Bytes.from(Field.toBytes(input)));
-//   const digestBinary = digest.map(fieldToBinary).join('');
+//   const digestBinary = digest.map(uint32ToBinary).join('');
 //   const digestHex = binaryToHex(digestBinary);
 
 //   return digestHex;
@@ -175,12 +175,12 @@ function o1jsHash(input: string | Uint8Array): string {
 }
 
 function o1jsHashCircom(input: string | Uint8Array): string {
-  let digest: Field[];
+  let digest: UInt32[];
   if (typeof input === 'string') {
     digest = sha256Circom(Bytes.fromString(input));
   } else digest = sha256Circom(Bytes.from(input));
 
-  const digestBinary = digest.map(fieldToBinary).join('');
+  const digestBinary = digest.map(uint32ToBinary).join('');
   const digestHex = binaryToHex(digestBinary);
 
   return digestHex;

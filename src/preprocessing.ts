@@ -1,4 +1,4 @@
-import { Field, Bool, Bytes } from 'o1js';
+import { Field, Bool, Bytes, UInt32 } from 'o1js';
 import { toBoolArray } from './binary-utils.js';
 import { addMod32, sigma0, sigma1 } from './bitwise-functions.js';
 
@@ -9,38 +9,6 @@ export {
   parseSha2Input,
   prepareMessageSchedule,
 };
-/**
- * Performs padding on the input according to the SHA-256 standards.
- *
- * The padding involves appending a single '1' bit, followed by a series of '0' bits,
- * and finally, the original length of the input in binary form as a 64-bit integer.
- *
- * @param {Field[]} input - The input parsed into an array of 8-bit field elements.
- * @returns {Bool[]} The padded input bits according to SHA-256.
- *
- */
-function padInput(input: Field[]): Bool[] {
-  // Reverse parsing the input from Field[] into binary=Bool[]
-  let inputBinary = input.map((f) => f.toBits(8)).flat();
-
-  const blockSize = 512;
-  const initialLength = inputBinary.length;
-  const bitLength = initialLength % blockSize;
-  const paddingLength =
-    bitLength < 448 ? 448 - bitLength : blockSize + 448 - bitLength;
-
-  // Append a single '1' bit
-  inputBinary.push(Bool(true));
-
-  // Append '0' bits until reaching the padding length
-  for (let i = 0; i < paddingLength - 1; i++) inputBinary.push(Bool(false));
-
-  // Append the 64-bit representation of the initial length
-  const inputBitLengthBinary = toBoolArray(initialLength);
-  inputBinary.push(...inputBitLengthBinary);
-
-  return inputBinary;
-}
 
 /**
  * Reverse the input bytes endianess and converts them into an array of Fields.
@@ -49,13 +17,45 @@ function padInput(input: Field[]): Bool[] {
  * @returns {Field[]} An array of Fields representing the parsed input for SHA-256 in zkapp.
  *
  */
-function parseSha2Input(input: Bytes): Field[] {
+function parseSha2Input(input: Bytes): Bool[] {
   const parsedInput = input
     .toFields()
     .map((f) => f.toBits(8).reverse())
-    .map((bits) => Field.fromBits(bits));
+    .flat();
 
   return parsedInput;
+}
+
+/**
+ * Performs padding on the input according to the SHA-256 standards.
+ *
+ * The padding involves appending a single '1' bit, followed by a series of '0' bits,
+ * and finally, the original length of the input in binary form as a 64-bit integer.
+ *
+ * @param {Bool[]} input - The input parsed into an array of 8-bit field elements.
+ * @returns {Bool[]} The padded input bits according to SHA-256.
+ *
+ */
+function padInput(parsedInput: Bool[]): Bool[] {
+  // Reverse parsing the input from Field[] into binary=Bool[]
+  let paddedInput = parsedInput;
+  const blockSize = 512;
+  const initialLength = paddedInput.length;
+  const bitLength = initialLength % blockSize;
+  const paddingLength =
+    bitLength < 448 ? 448 - bitLength : blockSize + 448 - bitLength;
+
+  // Append a single '1' bit
+  paddedInput.push(Bool(true));
+
+  // Append '0' bits until reaching the padding length
+  for (let i = 0; i < paddingLength - 1; i++) paddedInput.push(Bool(false));
+
+  // Append the 64-bit representation of the initial length
+  const inputBitLengthBinary = toBoolArray(initialLength);
+  paddedInput.push(...inputBitLengthBinary);
+
+  return paddedInput;
 }
 
 /**
@@ -86,10 +86,10 @@ function parseBinaryTo512BitBlocks(bits: Bool[]): Bool[][] {
  * It follows the M_op operation in [§5.2.1] of the SHA-256 standards.
  *
  * @param {Bool[]} bits512Block - The 512-bit block to be parsed into sixteen 32-bit words.
- * @returns {Field[]} An array of sixteen 32-bit words (Fields) obtained from the 512-bit block.
+ * @returns {UInt32[]} An array of sixteen 32-bit words (Fields) obtained from the 512-bit block.
  *
  */
-function parse512BitBlock(bits512Block: Bool[]): Field[] {
+function parse512BitBlock(bits512Block: Bool[]): UInt32[] {
   const bits32Words: Field[] = [];
 
   for (let i = 0; i < 512; i += 32) {
@@ -99,7 +99,7 @@ function parse512BitBlock(bits512Block: Bool[]): Field[] {
     bits32Words.push(bits32Word);
   }
 
-  return bits32Words;
+  return bits32Words.map((x) => UInt32.from(x));
 }
 
 /**
@@ -108,11 +108,11 @@ function parse512BitBlock(bits512Block: Bool[]): Field[] {
  * This function initializes the first 16 32-bit blocks and calculates the remaining 48 blocks
  * according to the SHA-256 standards. It serves as a link between preprocessing and hash computation.
  *
- * @param {Field[]} bits32Words - An array of 32-bit words (Fields) representing the input message block.
- * @returns {Field[]} The 32-bit message schedule (W_t) prepared for SHA-256 hash computation.
+ * @param {UInt32[]} bits32Words - An array of 32-bit words (Fields) representing the input message block.
+ * @returns {UInt32[]} The 32-bit message schedule (W_t) prepared for SHA-256 hash computation.
  *
  */
-function prepareMessageSchedule(bits32Words: Field[]): Field[] {
+function prepareMessageSchedule(bits32Words: UInt32[]): UInt32[] {
   const W = [...bits32Words];
 
   for (let t = 16; t <= 63; t++) {

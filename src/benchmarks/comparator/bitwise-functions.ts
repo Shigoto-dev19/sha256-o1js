@@ -1,4 +1,4 @@
-import { Field, Gadgets, Bool, Provable } from 'o1js';
+import { Field, Gadgets, Bool, Provable, UInt32 } from 'o1js';
 import { TWO32 } from '../../constants.js';
 
 export {
@@ -20,7 +20,7 @@ export {
  * the native o1js function (Gadgets.rotate(x, r, 'right')). It specifically operates on
  * hardcoded 32-bit field elements.
  *
- * @param {Field} input - The 32-bit field element to be rotated.
+ * @param {UInt32} input - The 32-bit word to be rotated.
  * @param {number} r - The number of positions to rotate the bits to the right.
  * @returns {Field} A new 32-bit field element representing the result of the right rotation.
  *
@@ -30,18 +30,17 @@ export {
  * const inputField = Field(...); // Initialize with a 32-bit field element
  * const rotatedResult = rotateRight(inputField, 4); // Performs a right rotation by 4 positions.
  */
-function rotateRight(input: Field, r: number): Field {
-  const inputBinary = input.toBits(32);
+function rotateRight(input: UInt32, r: number): UInt32 {
+  const inputBinary = input.value.toBits(32);
   const outBinary: Bool[] = [];
 
   for (let i = 0; i < 32; i++) {
     outBinary.push(inputBinary[(i + r) % 32]);
   }
 
-  const outField = Field.fromBits(outBinary);
-  outField.assertLessThanOrEqual(2n ** 32n);
+  const output = Field.fromBits(outBinary);
 
-  return outField;
+  return UInt32.from(output);
 }
 
 /**
@@ -59,8 +58,8 @@ function rotateRight(input: Field, r: number): Field {
  * const inputField = Field(...); // Initialize with a 32-bit field element
  * const shiftedResult = shiftRight(inputField, 4); // Performs a right shift by 4 positions.
  */
-function shiftRight(input: Field, r: number): Field {
-  const inputBinary = input.toBits(32);
+function shiftRight(input: UInt32, r: number): UInt32 {
+  const inputBinary = input.value.toBits(32);
   const outBinary: Bool[] = [];
 
   for (let i = 0; i < 32; i++) {
@@ -71,7 +70,7 @@ function shiftRight(input: Field, r: number): Field {
     }
   }
 
-  return Field.fromBits(outBinary);
+  return UInt32.from(Field.fromBits(outBinary));
 }
 
 /**
@@ -90,10 +89,10 @@ function shiftRight(input: Field, r: number): Field {
  * const zField = Field(...); // Initialize with a 32-bit field element
  * const chResult = ch(xField, yField, zField); // Performs the ch operation.
  */
-function ch(x: Field, y: Field, z: Field): Field {
-  const a = x.toBits(32).map((bit) => bit.toField());
-  const b = y.toBits(32).map((bit) => bit.toField());
-  const c = z.toBits(32).map((bit) => bit.toField());
+function ch(x: UInt32, y: UInt32, z: UInt32): UInt32 {
+  const a = x.value.toBits(32).map((bit) => bit.toField());
+  const b = y.value.toBits(32).map((bit) => bit.toField());
+  const c = z.value.toBits(32).map((bit) => bit.toField());
   let out: Field[] = [];
 
   // out = a&b ^ (!a)&c => out = a*(b-c) + c
@@ -101,7 +100,7 @@ function ch(x: Field, y: Field, z: Field): Field {
     out[k] = a[k].mul(b[k].sub(c[k])).add(c[k]);
   }
 
-  return Field.fromBits(out.map((bit) => bit.toBits(1)[0]));
+  return UInt32.from(Field.fromBits(out.map((bit) => bit.toBits(1)[0])));
 }
 
 /**
@@ -109,10 +108,10 @@ function ch(x: Field, y: Field, z: Field): Field {
  *
  * The maj operation is defined as: maj(x, y, z) = (x AND y) XOR (x AND z) XOR (y AND z).
  *
- * @param {Field} x - The first 32-bit field element.
- * @param {Field} y - The second 32-bit field element.
- * @param {Field} z - The third 32-bit field element.
- * @returns {Field} A new 32-bit field element representing the result of the Maj operation.
+ * @param {UInt32} x - The first 32-bit field element.
+ * @param {UInt32} y - The second 32-bit field element.
+ * @param {UInt32} z - The third 32-bit field element.
+ * @returns {UInt32} A new 32-bit field element representing the result of the Maj operation.
  *
  * @example
  * const xField = Field(...); // Initialize with a 32-bit field element
@@ -120,7 +119,7 @@ function ch(x: Field, y: Field, z: Field): Field {
  * const zField = Field(...); // Initialize with a 32-bit field element
  * const majResult = maj(xField, yField, zField); // Performs the Maj operation.
  */
-function maj(x: Field, y: Field, z: Field): Field {
+function maj(x: UInt32, y: UInt32, z: UInt32): UInt32 {
   /*
     out = a&b ^ a&c ^ b&c  
     out = a*b   +  a*c  +  b*c  -  2*a*b*c  
@@ -128,9 +127,9 @@ function maj(x: Field, y: Field, z: Field): Field {
     mid = b*c
     out = a*( b + c - 2*mid ) + mid
      */
-  const a = x.toBits(32).map((bit) => bit.toField());
-  const b = y.toBits(32).map((bit) => bit.toField());
-  const c = z.toBits(32).map((bit) => bit.toField());
+  const a = x.value.toBits(32).map((bit) => bit.toField());
+  const b = y.value.toBits(32).map((bit) => bit.toField());
+  const c = z.value.toBits(32).map((bit) => bit.toField());
   let mid: Field[] = [];
   let out: Field[] = [];
   for (let k = 0; k < 32; k++) {
@@ -138,7 +137,7 @@ function maj(x: Field, y: Field, z: Field): Field {
     out[k] = a[k].mul(b[k].add(c[k]).sub(mid[k].mul(2))).add(mid[k]);
   }
 
-  return Field.fromBits(out.map((bit) => bit.toBits(1)[0]));
+  return UInt32.from(Field.fromBits(out.map((bit) => bit.toBits(1)[0])));
 }
 
 /**
@@ -153,12 +152,17 @@ function maj(x: Field, y: Field, z: Field): Field {
  * const xField = Field(...); // Initialize with a 32-bit field element
  * const Σ0Result = SIGMA0(xField); // Calculates the Sigma-0 function.
  */
-function SIGMA0(x: Field) {
+function SIGMA0(x: UInt32): UInt32 {
   const rotr2 = rotateRight(x, 2);
   const rotr13 = rotateRight(x, 13);
   const rotr22 = rotateRight(x, 22);
 
-  return Gadgets.xor(Gadgets.xor(rotr2, rotr13, 32), rotr22, 32);
+  const output = Gadgets.xor(
+    Gadgets.xor(rotr2.value, rotr13.value, 32),
+    rotr22.value,
+    32
+  );
+  return UInt32.from(output);
 }
 
 /**
@@ -173,12 +177,17 @@ function SIGMA0(x: Field) {
  * const xField = Field(...); // Initialize with a 32-bit field element
  * const Σ1Result = SIGMA1(xField); // Calculates the Σ1 function.
  */
-function SIGMA1(x: Field) {
+function SIGMA1(x: UInt32): UInt32 {
   const rotr6 = rotateRight(x, 6);
   const rotr11 = rotateRight(x, 11);
   const rotr25 = rotateRight(x, 25);
 
-  return Gadgets.xor(Gadgets.xor(rotr6, rotr11, 32), rotr25, 32);
+  const output = Gadgets.xor(
+    Gadgets.xor(rotr6.value, rotr11.value, 32),
+    rotr25.value,
+    32
+  );
+  return UInt32.from(output);
 }
 
 /**
@@ -186,21 +195,22 @@ function SIGMA1(x: Field) {
  *
  * The σ0 function is defined as: σ0(x) = ROTR(7, x) XOR ROTR(18, x) XOR (x>>>3).
  *
- * @param {Field} x - The 32-bit field element to be processed by the σ0 function.
- * @returns {Field} A new 32-bit field element representing the result of the σ0 function.
+ * @param {UInt32} x - The 32-bit field element to be processed by the σ0 function.
+ * @returns {UInt32} A new 32-bit field element representing the result of the σ0 function.
  *
  * @example
  * const xField = Field(...); // Initialize with a 32-bit field element
  * const σ0Result = sigma0(xField); // Calculates the σ0 function.
  */
-function sigma0(x: Field) {
+function sigma0(x: UInt32): UInt32 {
   const rotr7 = rotateRight(x, 7);
   const rotr18 = rotateRight(x, 18);
   const shr3 = shiftRight(x, 3);
 
-  const rotr7x18 = Gadgets.xor(rotr7, rotr18, 32);
+  const rotr7x18 = Gadgets.xor(rotr7.value, rotr18.value, 32);
 
-  return Gadgets.xor(rotr7x18, shr3, 32);
+  const output = Gadgets.xor(rotr7x18, shr3.value, 32);
+  return UInt32.from(output);
 }
 
 /**
@@ -208,29 +218,34 @@ function sigma0(x: Field) {
  *
  * The σ1 function is defined as: σ1(x) = ROTR(17, x) XOR ROTR(19, x) XOR (x>>>10).
  *
- * @param {Field} x - The 32-bit field element to be processed by the σ1 function.
- * @returns {Field} A new 32-bit field element representing the result of the σ1 function.
+ * @param {UInt32} x - The 32-bit field element to be processed by the σ1 function.
+ * @returns {UInt32} A new 32-bit field element representing the result of the σ1 function.
  *
  * @example
  * const xField = Field(...); // Initialize with a 32-bit field element
  * const sigma1Result = sigma1(xField); // Calculates the σ1 function.
  */
-function sigma1(x: Field) {
+function sigma1(x: UInt32): UInt32 {
   const rotr17 = rotateRight(x, 17);
   const rotr19 = rotateRight(x, 19);
   const shr10 = shiftRight(x, 10);
 
-  return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
+  const output = Gadgets.xor(
+    Gadgets.xor(rotr17.value, rotr19.value, 32),
+    shr10.value,
+    32
+  );
+  return UInt32.from(output);
 }
 
-function bitwiseAddition2Mod32(a: Field, b: Field): Field {
-  let sum = a.add(b);
+function bitwiseAddition2Mod32(a: UInt32, b: UInt32): UInt32 {
+  let sum = a.value.add(b.value);
   const out = Provable.witness(Field, () => {
     return Field(sum.toBigInt() % TWO32.toBigInt());
   });
   out.assertLessThan(TWO32);
 
-  return out;
+  return UInt32.from(out);
 }
 
 /**
@@ -247,8 +262,8 @@ function bitwiseAddition2Mod32(a: Field, b: Field): Field {
  * const cField = Field(...); // Initialize with yet another 32-bit field element
  * const result = bitwiseAdditionMod32(aField, bField, cField); // Performs bitwise addition modulo 2^32.
  */
-function addMod32(...args: Field[]): Field {
-  let sum = Field(0);
+function addMod32(...args: UInt32[]): UInt32 {
+  let sum = UInt32.from(0);
   for (const val of args) sum = bitwiseAddition2Mod32(sum, val);
 
   return sum;

@@ -6,7 +6,7 @@ import {
 } from './preprocessing';
 import { H } from './constants';
 import {
-  fieldToBinary,
+  uint32ToBinary,
   toBinaryString,
   boolArrayToBinaryString,
 } from './binary-utils';
@@ -65,7 +65,7 @@ describe('Preprocessing Tests', () => {
     const input512Blocks = parseBinaryTo512BitBlocks(input);
     const input32Blocks = parse512BitBlock(input512Blocks[0]);
 
-    const actual = input32Blocks.map(fieldToBinary).join('');
+    const actual = input32Blocks.map(uint32ToBinary).join('');
     const expected = boolArrayToBinaryString(input);
 
     expect(actual).toStrictEqual(expected);
@@ -78,7 +78,7 @@ describe('Preprocessing Tests', () => {
       let input512Blocks = parseBinaryTo512BitBlocks(padded);
       let input32Blocks = parse512BitBlock(input512Blocks[0]);
 
-      let actual = input32Blocks.map(fieldToBinary).join('');
+      let actual = input32Blocks.map(uint32ToBinary).join('');
       let expected = boolArrayToBinaryString(padded);
 
       expect(actual).toStrictEqual(expected);
@@ -92,7 +92,7 @@ describe('Preprocessing Tests', () => {
       let input512Blocks = parseBinaryTo512BitBlocks(padded);
       let input32Blocks = input512Blocks.map(parse512BitBlock).flat();
 
-      let actual = input32Blocks.map(fieldToBinary).join('');
+      let actual = input32Blocks.map(uint32ToBinary).join('');
       let expected = boolArrayToBinaryString(padded);
 
       expect(actual).toStrictEqual(expected);
@@ -100,7 +100,7 @@ describe('Preprocessing Tests', () => {
   });
 
   test('should have compliant & constant initial hashes', () => {
-    const actual = H.map(fieldToBinary);
+    const actual = H.map(uint32ToBinary);
     const expected = [
       '01101010000010011110011001100111',
       '10111011011001111010111010000101',

@@ -1,4 +1,4 @@
-import { Field, Bytes } from 'o1js';
+import { Bytes, UInt32 } from 'o1js';
 import { H as initialHashWords, K } from '../../constants.js';
 import { ch, maj, SIGMA0, SIGMA1, addMod32 } from './bitwise-functions.js';
 
@@ -13,7 +13,7 @@ import {
 //! prepareMessageSchedule is the only function that uses native o1js bitwise functions
 //! --> it is utilized only once, that's why it doesn't have an effect(verified) on the circom implementation
 
-export function sha256(input: Bytes): Field[] {
+export function sha256(input: Bytes): UInt32[] {
   const H = [...initialHashWords];
 
   const parsedInput = parseSha2Input(input);

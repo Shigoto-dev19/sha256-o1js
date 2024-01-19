@@ -10,7 +10,7 @@ import {
   addMod32,
 } from './bitwise-functions';
 
-import { Field } from 'o1js';
+import { Field, UInt32 } from 'o1js';
 import {
   generateRandomBytes,
   rotateRight32Native,
@@ -161,8 +161,8 @@ describe('Bitwise Operation Tests', () => {
      * Test the o1js compatible choice bitwise function against its verified version in native JS.
      */
     const testChoice = (inputs: [number, number, number]) => {
-      const [in1, in2, in3] = inputs.map(Field);
-      const actual = ch(in1, in2, in3).toBigInt();
+      const [in1, in2, in3] = inputs.map((x) => UInt32.from(x));
+      const actual = ch(in1, in2, in3).value.toBigInt();
       const expected = choice(...inputs);
 
       expect(actual).toBe(expected);
@@ -204,8 +204,8 @@ describe('Bitwise Operation Tests', () => {
      * Test the o1js compatible majority bitwise function against its verified version in native JS.
      */
     const testMajority = (inputs: [number, number, number]) => {
-      const [in1, in2, in3] = inputs.map(Field);
-      const actual = maj(in1, in2, in3).toBigInt();
+      const [in1, in2, in3] = inputs.map((x) => UInt32.from(x));
+      const actual = maj(in1, in2, in3).value.toBigInt();
       const expected = majority(...inputs);
 
       expect(actual).toBe(expected);
@@ -238,7 +238,7 @@ describe('Bitwise Operation Tests', () => {
     };
 
     const testσ0 = (input: bigint) => {
-      const actual = sigma0(Field(input)).toBigInt();
+      const actual = sigma0(UInt32.from(input)).value.toBigInt();
       const expected = σ0(Number(input));
 
       expect(actual).toBe(expected);
@@ -267,7 +267,7 @@ describe('Bitwise Operation Tests', () => {
     };
 
     const testσ1 = (input: bigint) => {
-      const actual = sigma1(Field(input)).toBigInt();
+      const actual = sigma1(UInt32.from(input)).value.toBigInt();
       const expected = σ1(Number(input));
 
       expect(actual).toBe(expected);
@@ -296,7 +296,7 @@ describe('Bitwise Operation Tests', () => {
     };
 
     const testΣ0 = (input: bigint) => {
-      const actual = SIGMA0(Field(input)).toBigInt();
+      const actual = SIGMA0(UInt32.from(input)).value.toBigInt();
       const expected = Σ0(Number(input));
 
       expect(actual).toBe(expected);
@@ -325,7 +325,7 @@ describe('Bitwise Operation Tests', () => {
     };
 
     const testΣ1 = (input: bigint) => {
-      const actual = SIGMA1(Field(input)).toBigInt();
+      const actual = SIGMA1(UInt32.from(input)).value.toBigInt();
       const expected = Σ1(Number(input));
 
       expect(actual).toBe(expected);
@@ -354,7 +354,9 @@ describe('Bitwise Operation Tests', () => {
     };
 
     const testAdditionMod32 = (inputs: number[]) => {
-      const actual = addMod32(...inputs.map(Field)).toBigInt();
+      const actual = addMod32(
+        ...inputs.map((x) => UInt32.from(x))
+      ).value.toBigInt();
       const expected = additionMod32(...inputs);
 
       expect(actual).toBe(expected);

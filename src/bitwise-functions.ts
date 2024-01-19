@@ -1,4 +1,4 @@
-import { Field, Gadgets } from 'o1js';
+import { Field, Gadgets, UInt32 } from 'o1js';
 
 export {
   shiftRight32,
@@ -24,63 +24,63 @@ function shiftRight32(field: Field, bits: number) {
   return shifted;
 }
 
-function ch(x: Field, y: Field, z: Field): Field {
-  const xy = Gadgets.and(x, y, 32);
-  const _xz = Gadgets.and(Gadgets.not(x, 32), z, 32);
+function ch(x: UInt32, y: UInt32, z: UInt32): UInt32 {
+  const xy = x.and(y);
+  const _xz = x.not().and(z);
 
-  return Gadgets.xor(xy, _xz, 32);
+  return xy.xor(_xz);
 }
 
-function maj(x: Field, y: Field, z: Field): Field {
-  const xy = Gadgets.and(x, y, 32);
-  const xz = Gadgets.and(x, z, 32);
-  const yz = Gadgets.and(y, z, 32);
+function maj(x: UInt32, y: UInt32, z: UInt32): UInt32 {
+  const xy = x.and(y);
+  const xz = x.and(z);
+  const yz = y.and(z);
 
-  return Gadgets.xor(Gadgets.xor(xy, xz, 32), yz, 32);
+  return xy.xor(xz).xor(yz);
 }
 
-function SIGMA0(x: Field) {
-  const rotr2 = rotateRight32(x, 2);
-  const rotr13 = rotateRight32(x, 13);
-  const rotr22 = rotateRight32(x, 22);
+function SIGMA0(x: UInt32) {
+  const rotr2 = x.rotate(2, 'right');
+  const rotr13 = x.rotate(13, 'right');
+  const rotr22 = x.rotate(22, 'right');
 
-  return Gadgets.xor(Gadgets.xor(rotr2, rotr13, 32), rotr22, 32);
+  return rotr2.xor(rotr13).xor(rotr22);
 }
 
-function SIGMA1(x: Field) {
-  const rotr6 = rotateRight32(x, 6);
-  const rotr11 = rotateRight32(x, 11);
-  const rotr25 = rotateRight32(x, 25);
+function SIGMA1(x: UInt32) {
+  const rotr6 = x.rotate(6, 'right');
+  const rotr11 = x.rotate(11, 'right');
+  const rotr25 = x.rotate(25, 'right');
 
-  return Gadgets.xor(Gadgets.xor(rotr6, rotr11, 32), rotr25, 32);
+  return rotr6.xor(rotr11).xor(rotr25);
 }
 
-function sigma0(x: Field) {
-  const rotr7 = rotateRight32(x, 7);
-  const rotr18 = rotateRight32(x, 18);
-  const shr3 = shiftRight32(x, 3);
+function sigma0(x: UInt32) {
+  const rotr7 = x.rotate(7, 'right');
+  const rotr18 = x.rotate(18, 'right');
+  const shr3 = x.rightShift(3);
 
-  const rotr7x18 = Gadgets.xor(rotr7, rotr18, 32);
+  const rotr7x18 = rotr7.xor(rotr18);
 
-  return Gadgets.xor(rotr7x18, shr3, 32);
+  return rotr7x18.xor(shr3);
 }
 
-function sigma1(x: Field) {
-  const rotr17 = rotateRight32(x, 17);
-  const rotr19 = rotateRight32(x, 19);
-  const shr10 = shiftRight32(x, 10);
+function sigma1(x: UInt32) {
+  const rotr17 = x.rotate(17, 'right');
+  const rotr19 = x.rotate(19, 'right');
+  const shr10 = x.rightShift(10);
 
-  return Gadgets.xor(Gadgets.xor(rotr17, rotr19, 32), shr10, 32);
+  return rotr17.xor(rotr19).xor(shr10);
 }
 
-function addMod32(...args: Field[]): Field {
+function addMod32(...args: UInt32[]): UInt32 {
   let sum = Field(0);
-  for (const val of args) sum = Gadgets.addMod32(sum, val);
+  for (const val of args) sum = Gadgets.addMod32(sum, val.value);
 
-  return sum;
+  return UInt32.from(sum);
 }
 
-function prepareMessageSchedule(bits32Words: Field[]): Field[] {
+function prepareMessageSchedule(bits32Words: UInt32[]): UInt32[] {
   const W = [...bits32Words];
 
   for (let t = 16; t <= 63; t++) {

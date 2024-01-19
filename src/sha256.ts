@@ -64,5 +64,5 @@ export function sha256O1js(input: Bytes): Bytes {
 
   // the message schedule is converted to big endian bytes
   // wordToBytes expects little endian, so we reverse the bytes
-  return Bytes.from(H.map((x) => wordToBytes(x, 4).reverse()).flat());
+  return Bytes.from(H.map((x) => wordToBytes(x.value, 4).reverse()).flat());
 }

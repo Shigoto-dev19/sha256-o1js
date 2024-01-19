@@ -1,7 +1,7 @@
-import { Field, Bool, Provable, UInt8 } from 'o1js';
+import { Field, Bool, Provable, UInt8, UInt32 } from 'o1js';
 
 export {
-  fieldToBinary,
+  uint32ToBinary,
   binaryToHex,
   toBoolArray,
   toBinaryString,
@@ -19,8 +19,8 @@ type BinaryString = string;
 /**
  * Convert a field element from o1js into a BinaryString
  */
-function fieldToBinary(field: Field): BinaryString {
-  const binaryField = field
+function uint32ToBinary(input: UInt32): BinaryString {
+  const binaryField = input.value
     .toBits(32)
     .reverse() // bitify to BE
     .flat()
