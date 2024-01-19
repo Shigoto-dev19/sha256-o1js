@@ -135,10 +135,23 @@
 - Change index.ts to handle bytes output as a poseidon digest => enables single field assertion.
 - Adapt zkcontract and main.ts code for successfull deployment
 - All tests pass but benchmarks show that the sha256 is two times slower than before which raises a big question for me.
-- The contrainSystem files for sha256 is still not running, which still gives me supspicions about Bytes32 compatibility with the o1js Circuit API.
-- Learn more about o1js advanced types and realize that ``Provable.array(ProableType, num)` solve the issue I pointed to yesterday about array non-compliance with `Provable.witness`
+- The constrainSystem file for sha256 is still not running, which still gives me supspicions about Bytes32 compatibility with the o1js Circuit API.
+- Learn more about o1js advanced types and realize that `Provable.array(ProvableType, num)` solves the issue I pointed to yesterday about array non-compliance with `Provable.witness`
 - After the changes I made follwing sha3 release
   - The code became more flexible with the bytes capacity
   - The o1js sha256 becomes 2x slower than before
   - It is more difficult to use --> even for me as a developer to debug and adapt changes
   - --> I think the best input handling format should be sth similar to Poseidon.hash by get an array of fields.
+
+### DAY8: 19th January
+
+- Sort order of preprocessing functions.
+- Update all bitwise functions to use UInt32 type instead of Field for better size assertion.
+ - Convert all 32 bit words from implicit Field to UInt32 type.
+ - Utilize native bitwise function such as rotate and rightShift directly from UInt32 methods.
+ - Remove redundant bitwise function declarations. 
+ - Update sha256 circom implementation regarding that it imports functions commonly from **preprocessing.ts**
+ - Fix addMod32 to not use UInt32 because addition in UIn32 doesn't overflow. 
+- Bechmarks show that sha256 is 60% faster than the one from the last commit.  
+- It is amazing how the o1js added many useful perks in the last release. 
+- Further debugging for sha256 using Circuit API but still not running. 
