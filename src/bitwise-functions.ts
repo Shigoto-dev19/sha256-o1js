@@ -13,15 +13,12 @@ export {
   prepareMessageSchedule,
 };
 
-function rotateRight32(field: Field, bits: number) {
-  return Gadgets.rotate32(field, bits, 'right');
+function rotateRight32(x: UInt32, bits: number) {
+  return x.rotate(bits, 'right');
 }
 
-function shiftRight32(field: Field, bits: number) {
-  let { remainder: shifted } = Gadgets.divMod32(
-    Gadgets.rotate64(field, bits, 'right')
-  );
-  return shifted;
+function shiftRight32(x: UInt32, bits: number) {
+  return x.rightShift(bits);
 }
 
 function ch(x: UInt32, y: UInt32, z: UInt32): UInt32 {

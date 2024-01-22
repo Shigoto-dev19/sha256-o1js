@@ -10,7 +10,7 @@ import {
   addMod32,
 } from './bitwise-functions';
 
-import { Field, UInt32 } from 'o1js';
+import { UInt32 } from 'o1js';
 import {
   generateRandomBytes,
   rotateRight32Native,
@@ -30,7 +30,7 @@ describe('Bitwise Operation Tests', () => {
       specific = false,
       rotrExpected?: bigint
     ) => {
-      const rotrActual = rotateRight32(Field(input), rotationBits).toBigInt();
+      const rotrActual = rotateRight32(UInt32.from(input), rotationBits).value.toBigInt();
       if (specific) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         expect(rotrActual).toBe(rotrExpected!);
@@ -113,7 +113,7 @@ describe('Bitwise Operation Tests', () => {
       specific = false,
       shrExpected?: bigint
     ) => {
-      const shrActual = shiftRight32(Field(input), shiftBits).toBigInt();
+      const shrActual = shiftRight32(UInt32.from(input), shiftBits).value.toBigInt();
       if (specific) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         expect(shrActual).toBe(shrExpected!);
