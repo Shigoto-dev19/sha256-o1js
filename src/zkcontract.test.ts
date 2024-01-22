@@ -10,13 +10,6 @@ import {
   Provable,
 } from 'o1js';
 
-/*
- * This file specifies how to test the `Add` example smart contract. It is safe to delete this file and replace
- * with your own tests.
- *
- * See https://docs.minaprotocol.com/zkapps for more info.
- */
-
 let proofsEnabled = false;
 
 describe('Sha256ZkApp', () => {
@@ -69,10 +62,11 @@ describe('Sha256ZkApp', () => {
   it('asserts on the initial digest compared to the output from smart contract hash interaction', async () => {
     await localDeploy();
 
-    // update transaction
+    
     class Bytes3 extends Bytes(3) {}
+
+    // update transaction
     const x = Provable.witness(Bytes3.provable, () => Bytes3.fromString('abc'));
-    // const x = Bytes.fromString('abc');
     const txn = await Mina.transaction(senderAccount, () => {
       zkApp.hash(x);
     });

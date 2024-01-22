@@ -188,10 +188,12 @@ function o1jsHashCircom(input: string | Uint8Array): string {
 class Timer {
   private startTime: number;
   private endTime: number;
+  private log?: string;
   public executionTime: string;
 
-  constructor() {
+  constructor(log?: string) {
     this.start();
+    this.log = log;
   }
 
   private start() {
@@ -201,5 +203,6 @@ class Timer {
   end() {
     this.endTime = performance.now();
     this.executionTime = `${this.endTime - this.startTime} ms`;
+    if (this.log) console.log(`${this.log}: `, this.executionTime);
   }
 }
