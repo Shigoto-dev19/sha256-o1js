@@ -155,3 +155,15 @@
 - Bechmarks show that sha256 is 60% faster than the one from the last commit.  
 - It is amazing how the o1js added many useful perks in the last release. 
 - Further debugging for sha256 using Circuit API but still not running. 
+
+### DAY9: 22th January
+- Integrate logs in test utility Timer class.
+ - Now it accepts an optional title in the constructor and logs it with executionTime when end() method is called
+- I wonder if there is a direct method like `assertEquals` for the provable Bytes class.
+- Add SHA256 ZkProgram instance
+  - It includes logs for compile, proving, and verification time
+  - It asserts on the integrity of the digest output.
+- Tweak bitwise functions tests
+  - The tests were based on the `Gadgets.rotate` method whereas now is changed to be adapted to `UInt32` type instead of Field
+  - Bitwise rotate and shift are used directly from o1js but the tests are kept in case of experimentation in the future.
+  - All tests pass
