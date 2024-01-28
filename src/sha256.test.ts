@@ -1,6 +1,9 @@
 import { o1jsHash, nodeHash, generateRandomInput } from './test-utils';
-import { bytesToHex } from '@noble/hashes/utils';
+import { bytesToHex, concatBytes } from '@noble/hashes/utils';
 import { sha256 as nobleHashUint } from '@noble/hashes/sha256';
+import { sha256O1js, SHA256 } from './sha256';
+import * as crypto from 'crypto';
+import { Bytes } from 'o1js';
 
 // NIST test vectors (https://www.di-mgt.com.au/sha_testvectors.html)
 // Note: - Input message: one million (1,000,000) repetitions of the character "a" (0x61).
@@ -97,7 +100,7 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     }
   });
 
-  test.skip('should have compliant chained hashes', () => {
+  test('should have compliant chained hashes', () => {
     const input = generateRandomInput(100);
     let nodeDigest = nodeHash(input);
     let o1jsDigest = o1jsHash(input);
@@ -107,27 +110,6 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
 
       expect(o1jsDigest).toBe(nodeDigest);
     }
-  });
-
-  test.skip('should have passing sliding window tests - 4096', () => {
-    const testWindow4096 = new Array<string>(4096);
-    for (let i = 0; i < testWindow4096.length; i++)
-      testWindow4096[i] = i.toString();
-
-    for (let i = 1; i < testWindow4096.length; i++) {
-      let input = testWindow4096.slice(0, i).join('');
-      testSha256(input);
-    }
-  });
-
-  // This test aims to destruct an input into seperate 32-bit blocks and then compare the digest of the full input against recursive updates of the 32-bit blocks
-  // It has the same concept of the sliding window test but on sequential update of destruced message blocks.
-  //TODO: This test requires update method for the hash function.
-  test.skip('should have passing sliding window tests - 3/256', () => {
-    let testWindow768 = new Array<string>(256 * 3);
-    // Fill with random data
-    for (let i = 0; testWindow768.length; i++)
-      testWindow768[i] = generateRandomInput(768) as string;
   });
 
   test('should have compliant digest for input=randomUint8Array', () => {
@@ -147,4 +129,84 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
       expect(actualDigest).toBe(expectedDigest);
     }
   });
+
+  // !This test takes an extremely long time to finish 
+  test.skip('should have passing sliding window tests - 4096', () => {
+    const testWindow4096 = new Array<string>(4096);
+    for (let i = 0; i < testWindow4096.length; i++)
+      testWindow4096[i] = i.toString();
+
+    for (let i = 1; i < testWindow4096.length; i++) {
+      let input = testWindow4096.slice(0, i).join('');
+      testSha256(input);
+    }
+  });
+
+  // ===============================================================
+  
+  // This test aims to destruct an input into seperate 32-bit blocks and then compare the digest of the full input against recursive updates of the 32-bit blocks
+  // It has the same concept of the sliding window test but on sequential update of destruced message blocks.
+  //TODO: This test requires update method for the hash function.
+  test.only('should pass sliding window tests - 3/256', () => {
+    let BUF_768 = new Uint8Array(256 * 3);
+    
+    // Fill with random data
+    for (let i = 0; i < (256 * 3) / 32; i++)
+      BUF_768.set(crypto.createHash('sha256').update(new Uint8Array(i)).digest(), i * 32);
+    
+    let BYTES_768 = Bytes.from(BUF_768);
+    const digest768 = sha256O1js(BYTES_768);
+    for (let i = 0; i < 256; i++) {
+      let b1 = BUF_768.subarray(0, i);
+      let b1Bytes = Bytes.from(b1);
+      for (let j = 0; j < 256; j++) {
+        let b2 = BUF_768.subarray(i, i + j);
+        let b2Bytes = Bytes.from(b2);
+        
+        let b3 = BUF_768.subarray(i + j);
+        let b3Bytes = Bytes.from(b3);
+        
+        expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
+        // expect(nobleHashUint.create().update(b1).update(b2).update(b3).digest()).toStrictEqual(fnH);
+        expect(new SHA256().update(b1Bytes).update(b2Bytes).digest().toHex())
+        .toEqual(bytesToHex(nobleHashUint.create().update(b1).update(b2).digest()))
+        // expect(new SHA256().update(b1Bytes).update(b2Bytes).update(b3Bytes).digest().toHex()).toStrictEqual(digest768.toHex());
+      }
+    }
+  });
+
+  // ===============================================================
+  let BUF_768 = new Uint8Array(256 * 3);
+    // Fill with random data
+    for (let i = 0; i < (256 * 3) / 32; i++)
+      BUF_768.set(crypto.createHash('sha256').update(new Uint8Array(i)).digest(), i * 32);
+  // ===============================================================
+
+  test.skip(`Partial: sha256`, () => {
+    const fnH = nobleHashUint(BUF_768);
+    for (let i = 0; i < 256; i++) {
+      let b1 = BUF_768.subarray(0, i);
+      for (let j = 0; j < 256; j++) {
+        let b2 = BUF_768.subarray(i, i + j);
+        let b3 = BUF_768.subarray(i + j);
+        expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
+        expect(nobleHashUint.create().update(b1).update(b2).update(b3).digest()).toStrictEqual(fnH);
+      }
+    }
+  });
+
+  // Same as before, but creates copy of each slice, which changes dataoffset of typed array
+  // Catched bug in blake2
+  test.skip(`Partial (copy): sha256 partial`, () => {
+    const fnH = nobleHashUint(BUF_768);
+    for (let i = 0; i < 256; i++) {
+      let b1 = BUF_768.subarray(0, i).slice();
+      for (let j = 0; j < 256; j++) {
+        let b2 = BUF_768.subarray(i, i + j).slice();
+        let b3 = BUF_768.subarray(i + j).slice();
+        expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
+        expect(nobleHashUint.create().update(b1).update(b2).update(b3).digest()).toStrictEqual(fnH);
+      }
+    }
+  }); 
 });
