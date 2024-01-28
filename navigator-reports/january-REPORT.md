@@ -167,3 +167,16 @@
   - The tests were based on the `Gadgets.rotate` method whereas now is changed to be adapted to `UInt32` type instead of Field
   - Bitwise rotate and shift are used directly from o1js but the tests are kept in case of experimentation in the future.
   - All tests pass
+
+### DAY10: 28th Januaray
+- In order to use the SHA256 as updatable hash function --> Add update method
+- Add SHA256 class that is restructuring of the single function into a class to enable adding update method.
+  - update method is a chained method that returns an instance of the SHA256 class.
+  - in other words, when hashing a single input, we initialize the function with nothing-up my sleeve words; on the otherside the update method set the digest word as the initial state for a new input.
+- It was difficult to have the gist of how things work with chained instances of class to have a running update method.
+- The update method when used as ```let digest = new SHA256().update(input).digest()``` works fine with a single input.
+- The update method method doesn't output expected digest results when trying to chain different scattered bytes
+  - Add sliding window tests for this purpose following [noble-hashes tests](https://github.com/paulmillr/noble-hashes/blob/main/test/hashes.test.js)
+  - The tests confirm that the newly added update method is not consistent.
+- The work took a lot of time, so I will try to make it work tommorrow.
+- The good thing about the update method, is that it can also be used as a mixer of bytes thanks to the avalanche effect and many other use cases.
