@@ -12,7 +12,8 @@ export {
 };
 
 /**
- * This type refers to a string that contains a sequence of '0's and '1' which is the binary representation of a number or an UTF-8 encoded native string ty
+ * This type refers to a string that contains a sequence of '0's and '1's
+ * which is the binary representation of a number or an UTF-8 encoded native string ty
  */
 type BinaryString = string;
 
@@ -32,7 +33,7 @@ function uint32ToBinary(input: UInt32): BinaryString {
 }
 
 /**
- *  Convert a BinaryString into Hexadecimal
+ *  Convert a BinaryString into Hexadecimal string
  */
 function binaryToHex(x: BinaryString): string {
   let result = '';
@@ -44,7 +45,8 @@ function binaryToHex(x: BinaryString): string {
 }
 
 /**
- *  Convert a BinaryString into an array of o1js Bool type: [Bool(false), Bool(true), Bool(false), Bool(true), Bool(true), Bool(false)]
+ *  Convert a BinaryString into an array of o1js Bool type
+ *  Example: '010110' --> [Bool(false), Bool(true), Bool(false), Bool(true), Bool(true), Bool(false)]
  */
 function binaryStringToBoolArray(binaryString: BinaryString): Bool[] {
   const boolArray: Bool[] = [];

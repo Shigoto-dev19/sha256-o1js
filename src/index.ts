@@ -8,6 +8,7 @@ import {
   Poseidon,
 } from 'o1js';
 import { sha256O1js } from './sha256.js';
+
 class Bytes3 extends Bytes(3) {}
 
 // the sha256 digest is poseidon hashed to output a single field that will serve as a publicInput
