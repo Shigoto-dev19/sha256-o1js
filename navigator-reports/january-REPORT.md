@@ -10,7 +10,7 @@
   - The strict type assertion of o1js projects inhibited the usage of this powerful package regarding that it is written in vanilla JS.
   - It took time to add `.d.ts` file and fork the package to be strict TS-compatible.
     - The forked package is named [micro-bmark-ts](https://github.com/Shigoto-dev19/micro-bmark-ts) which can be useful now for other developers as well.
-  - Add script for swift usage of the benchmark file -> `npm run benchmark`
+  - Add script for swift usage of the benchmark file -> `npm run benchmark`.
   - The difference between `command.ts` and `benchmark.ts` files
     - I use the command file for print debugging and having a rough idea on performance.
     - The benchmark files serves to compare the performance of difference function based on the number of iteration and optional stat logs.
@@ -27,8 +27,8 @@
         - Now the `sha256` is faster
     - Add logs to track performance of both poseidon and sha256 circuits
       - log wires and gates number
-        - it seems to be different that vkregression
-        - TODO: further research for the exact gate number of a MINA circuit<
+        - it seems to be different than vkregression
+        - TODO: further research for the exact gate number of a MINA circuit.
       - log key generation, proving, and verification time.
       - Timer Class required:
         - Move to test-utils.ts file
@@ -39,16 +39,16 @@
 
 - Add the optimized version to commands.ts
   - A version of o1js SHA256 hash function optimized fully with native o1js gadgets is `10 times` faster that a hash function simulated to the implementation in circom!! -> command.ts log -> 1 iteration.
-  - SHA256 Benchmarks -> also verified by the benchmark script -> 1000 iterations
-    ├─o1js x 46 ops/sec @ 21ms/op
-    ├─o1jsOP x 388 ops/sec @ 2ms/op
+  - SHA256 Benchmarks -> also verified by the benchmark script -> 1000 iterations.
+    - ├─o1js x 46 ops/sec @ 21ms/op.
+    - ├─o1jsOP x 388 ops/sec @ 2ms/op
   - The first SHA256 hash function was a combination of native o1js gadgets and simulated circom templated for other bitwise function
     - After the last release, the 32-bit bitwise functions are now available.
       - Adding the SHA256 function using purely the bitwise functions from the gadgets, it seems that it is worth comparing to the first hash function
       - Write `ch` and `maj` bitwise function similar to the sha256 circom circuit implementation.
       - Realize that `shift32` bitwise function was not correct after assertions -> Fix error source
         - The latest release included leftShift32 and not rightShift and a simulated implementation was incorrect because leftShift is based on multiplication and rightShift on division
-          - division of field element give non-compliant results
+          - division of field element returns non-compliant results
           - the solution is to use `Gadgets.rotate64(field, bits, 'right')` function to shift the bits to the left i.e getting rid of them and then truncate the rotated bits using Gadgets.divMod32() function.
           ```typescript
           let { remainder: shifted } = Gadgets.divMod32(
@@ -63,7 +63,7 @@
 
 ### DAY4: 13th January
 
-- Move TWO32 constant from function to the `constants.ts`
+- Move TWO32 constant from function to the `constants.ts`.
 - Now that the o1js sha256 is validated as more efficient than the circom implementation, the following changes are made:
   - Create a new directory called `benchmarks`
     - This directory contains the benchmarks code --> `benchmark.ts`
@@ -81,7 +81,7 @@
 - Polish test-utils imports to reduce import redundancy(mainly from node crypto library)
 - Move all export objects from bottom to the top of files(all) for better readability.
 - **Note:** after separation, preprocessing function using native o1js bitwise gadgets are used in common for the native and circom implementation but it doesn't have effect on the performance because it is only called once
-  - this is verified by comparing old and new benchmark after restructuring of the project
+  - this is verified by comparing the old and new benchmarks after the restructuring of the project
 - Resturcturing and polishing the code took time and became a huge commit
   - Improve readability and code quality --> the project will still get bigger
   - This is crucial to separate operational code from other utility code
@@ -94,17 +94,17 @@
 - Move `command.ts` to the benchmarks directory and adapt code.
 - Add sha3-256 to the benchmarks --> result is it has the same performance as sha256 function which is good news
   - for 2500 iterations, sha3 is slightly better in performance but that might because of the noise of input handling in sha256.
-    -note: the o1js sha3 input is limited to 32 bytes
+    - Note: the o1js sha3 input is limited to 32 bytes
 - Add witness benchmarks for poseidon, sha3_256 and sha256 in a new file called `sha256-witness.ts`
   - Add script ==> `npm run witness-time`
 - Regarding that SHA256 will be used in most cases for using field i.e number instead of string in a circuit
   - the input handling was quite different with o1js than other js/ts sha256 hash function, most of the function use **Uint8Array** as input if the input was desired to be a number.
   - I was aiming to hash a field directly to simulate poseidon function inputs in o1js
   - I adapted code to be compliant
-    - this was cumbersome, this step is always exhausting regarding that the avalance effect of the hash function always makes it difficult to track error source
+    - This was cumbersome, this step is always exhausting regarding that the avalanche effect of the hash function always makes it difficult to track error source
     - Add test cases for hashing inputs as field or Uint8Array
-    - tests pass but the hash function throws an error about pointing that the code is not provable when compiled
-    - send time debugging but might use input handling of Uint8Array similar to what's released in o1js SHA3_256
+    - Tests pass but the hash function throws an error about pointing that the code is not provable when compiled
+    - Spend time debugging but might use input handling of Uint8Array similar to what's released in o1js SHA3_256
 
 ### DAY6: 17th January
 
@@ -119,8 +119,8 @@
     - Update test-util random input generator for both strings and Uint8array type
     - Omit redundant code that separated between string and Field input types
     - Update tests and verify integrity
-    - check that project code is functional, provable, and deployable.
-  - constraint logs are showing an error, maybe the Circuit API is not yet updated to the Bytes provable type
+    - Check that project code is functional, provable, and deployable.
+  - Constraint logs are showing an error, maybe the Circuit API is not yet updated to the Bytes provable type.
   - After a lot of debugging --> all other scripts work
     - Deployable main.ts
     - ProofsEnable Deployable main.ts
@@ -133,7 +133,7 @@
 - Use `bytesToWord` and `wordToBytes` functions using code imported from `./o1js/src/lib/gadgets/bit-slices.ts`.
 - Set the main o1js sha256 output to bytes to be compliant with the o1js sha3 release.
 - Change index.ts to handle bytes output as a poseidon digest => enables single field assertion.
-- Adapt zkcontract and main.ts code for successfull deployment
+- Adapt zkcontract and main.ts code for successfull deployment.
 - All tests pass but benchmarks show that the sha256 is two times slower than before which raises a big question for me.
 - The constrainSystem file for sha256 is still not running, which still gives me supspicions about Bytes32 compatibility with the o1js Circuit API.
 - Learn more about o1js advanced types and realize that `Provable.array(ProvableType, num)` solves the issue I pointed to yesterday about array non-compliance with `Provable.witness`
@@ -148,9 +148,9 @@
 - Sort order of preprocessing functions.
 - Update all bitwise functions to use UInt32 type instead of Field for better size assertion.
 - Convert all 32 bit words from implicit Field to UInt32 type.
-- Utilize native bitwise function such as rotate and rightShift directly from UInt32 methods.
+- Utilize native bitwise functions such as rotate and rightShift directly from UInt32 methods.
 - Remove redundant bitwise function declarations.
-- Update sha256 circom implementation regarding that it imports functions commonly from **preprocessing.ts**
+- Update sha256 circom implementation regarding that it imports functions commonly from **preprocessing.ts**.
 - Fix addMod32 to not use UInt32 because addition in UIn32 doesn't overflow.
 - Bechmarks show that sha256 is 60% faster than the one from the last commit.
 - It is amazing how the o1js added many useful perks in the last release.
@@ -159,7 +159,7 @@
 ### DAY9: 22th January
 
 - Integrate logs in test utility Timer class.
-- Now it accepts an optional title in the constructor and logs it with executionTime when end() method is called
+- Now it accepts an optional title in the constructor and logs it with executionTime when `end()` method is called
 - I wonder if there is a direct method like `assertEquals` for the provable Bytes class.
 - Add SHA256 ZkProgram instance
   - It includes logs for compile, proving, and verification time
@@ -174,7 +174,7 @@
 - In order to use the SHA256 as updatable hash function --> Add update method
 - Add SHA256 class that is restructuring of the single function into a class to enable adding update method.
   - update method is a chained method that returns an instance of the SHA256 class.
-  - in other words, when hashing a single input, we initialize the function with nothing-up my sleeve words; on the otherside the update method set the digest word as the initial state for a new input.
+  - in other words, when hashing a single input, we initialize the function with nothing-up my sleeve words; on the otherside the update method set the digest words as the initial state for a new input.
 - It was difficult to have the gist of how things work with chained instances of class to have a running update method.
 - The update method when used as `let digest = new SHA256().update(input).digest()` works fine with a single input.
 - The update method method doesn't output expected digest results when trying to chain different scattered bytes
@@ -220,3 +220,32 @@
 - Update benchmarks readme.
 - Delete zkcontract.test.ts file & Polish main.ts file.
 - Lint main src directory files.
+
+## Summary & Feedback
+
+- I am glad that I delivered all the milestones and even more. 
+  - The SHA256 hash function is now deployable to a live test network.
+    - I learned how to check zkapp code provability and benchmark circuit stats.
+  - I managed to use my forked benchmark comparator [micro-bmark-ts](https://github.com/Shigoto-dev19/micro-bmark-ts) to keep track of the hash function efficiency.
+
+  - I worked on optimizing the hash function as much as possible.
+    - I totally shifted the circom simulated implementation to point to the casual way of circuit development without using any of the o1js gadgets.
+    - After the Keccak release, the o1js library offered better tools, so I developed an optimized version of the SHA256. 
+    - The results showed that the gadget-optimized version is at least 50 times faster than the circom simulated one!!.
+    - I wrote a [tweet](https://x.com/KaffelMahmoud/status/1744805950114894129?s=20) about it and the positive reaction of the MINA and WEB3 community made me feel delighted about my work. 
+  - I adapted the hash function message words from field elements that were supposed to be 32-bit to **UInt32** for adding an extra layer of security asserting on the element size.
+  - I utilized the `Circuit` & `Provable.runAndCheck` API to measure witness time as well as info stats about provable SHA256 function(also compared to SHA3 and Poseidon).
+  - **Note**: After the Keccak release, the o1js team updated the bitwise functions and made most of them flexible, which helped me optimize my workd and not resert to developing custom gates myself.
+  - This month, I felt in the zone so I wanted to keep working on the hash function even further: 
+    - Adapt input/output of the provable SHA256 to be compatible with the SHA3 release using provable `Bytes` API.
+    - Replace `Cicruit constraintSystem` with ZkProgram instance for SHA256.
+    - After a lot of struggle, I managed to add a functional SHA256 class that is restructuring of the single function into a class to enable adding [update method](https://www.geeksforgeeks.org/node-js-hash-update-method/#:~:text=The%20hash.update,length%20in%20bytes).
+      - The update method makes the hash function accept a stream of data(bytes) such as files or be used as bytes mixer.
+      - Add the sliding windows tests following [noble approach to testing](https://github.com/paulmillr/noble-hashes/blob/main/test/README.md).
+---
+- I was aiming to have this project be noted as the contribution of the month, because when I participated in ZK Hack Istanbul, the idea of SHA256 was meant to be a contribution to o1js as a crypto primitive and I aimed since the beginning for this goal. 
+  - I can see that the team released the main SHA2_256 3 days ago, so I don't know if my work can still be called a contribution regarding that the team did it on their own as well.
+  - Eventually, the team announced in tweets that my work was helpful to them and my recent [tweet](https://x.com/KaffelMahmoud/status/1744805950114894129?s=20) also proved to me that my work is valued, which made me feel that my contribution paid off in a sense :)
+- Now the the SHA256 project is finished. I believe that I progressed a lot since working seriously on it since Decemer.
+  - I never expected to have such a progress finishing it within around 24 working days, for this reason I would personally endorse my project to being elected as the "Most progress delivered since launch".
+
