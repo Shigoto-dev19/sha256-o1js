@@ -168,7 +168,7 @@
   - Bitwise rotate and shift are used directly from o1js but the tests are kept in case of experimentation in the future.
   - All tests pass
 
-### DAY10: 28th Januaray
+### DAY10: 28th January
 - In order to use the SHA256 as updatable hash function --> Add update method
 - Add SHA256 class that is restructuring of the single function into a class to enable adding update method.
   - update method is a chained method that returns an instance of the SHA256 class.
@@ -180,3 +180,16 @@
   - The tests confirm that the newly added update method is not consistent.
 - The work took a lot of time, so I will try to make it work tommorrow.
 - The good thing about the update method, is that it can also be used as a mixer of bytes thanks to the avalanche effect and many other use cases.
+
+### DAY11: 31th January
+- Rewrite the SHA256 class all over again
+  - The class used simulating [noble-hashes](https://github.com/paulmillr/noble-hashes/blob/main/src/sha256.ts) implementation was running but the integrity of the digest for a single update works fine but not for chained updates.
+  - The class had a lot of noise on the circuit regarding that a normal TS implementation is focused on buffer optimization, therefore it made it a lot more difficult to tweak the code.
+  - A SHA256 implementation having an update method is quite different than a direct hash function, and due to the avalanche effect, it would take a lot of time to debug the implementation all over again!
+  - I gave it more chance, I tweaked the code, I debugged, but nothing changed. I decided to try out a different method otherwise, I am gonna dump the class.
+  - Eventually, I found this [stablelib-sha256](https://github.com/StableLib/stablelib/blob/a7bac13/packages/sha256/sha256.ts#L148) implementation that is clearer to understand and have less related buffer complexity.
+  - After adapting the code here and there, the class had the same issue but later after adapting o1js bitwise conversion to the class, the class outputs the correct digest everytime.
+  - I added some code at the bottom of the file to verify the the class
+    - Outputs the correct digest
+    - Takes roughly the same time as before
+    - Is provable  
