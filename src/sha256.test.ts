@@ -1,7 +1,8 @@
 import { o1jsHash, nodeHash, generateRandomInput } from './test-utils';
 import { bytesToHex, concatBytes } from '@noble/hashes/utils';
 import { sha256 as nobleHashUint } from '@noble/hashes/sha256';
-import { sha256O1js, SHA256 } from './sha256';
+import { sha256O1js } from './sha256';
+import { SHA256 } from './sha256-class';
 import * as crypto from 'crypto';
 import { Bytes } from 'o1js';
 
@@ -130,7 +131,7 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     }
   });
 
-  // !This test takes an extremely long time to finish 
+  // !This test takes extremely long time to finish 
   test.skip('should have passing sliding window tests - 4096', () => {
     const testWindow4096 = new Array<string>(4096);
     for (let i = 0; i < testWindow4096.length; i++)
@@ -142,12 +143,12 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     }
   });
 
-  // ===============================================================
-  
-  // This test aims to destruct an input into seperate 32-bit blocks and then compare the digest of the full input against recursive updates of the 32-bit blocks
-  // It has the same concept of the sliding window test but on sequential update of destruced message blocks.
-  //TODO: This test requires update method for the hash function.
-  test.only('should pass sliding window tests - 3/256', () => {
+  /*   
+  This test aims to destruct an input into seperate 32-bit blocks and then compare the digest of the full input against recursive updates of the 32-bit blocks
+  It has the same concept of the sliding window test 4096 but on sequential update of destruced message blocks.
+  ! This test takes around 1.5 hours to finish
+  */
+  test.skip('should pass sliding window tests - 3/256', () => {
     let BUF_768 = new Uint8Array(256 * 3);
     
     // Fill with random data
@@ -167,46 +168,9 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
         let b3Bytes = Bytes.from(b3);
         
         expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
-        // expect(nobleHashUint.create().update(b1).update(b2).update(b3).digest()).toStrictEqual(fnH);
-        expect(new SHA256().update(b1Bytes).update(b2Bytes).digest().toHex())
-        .toEqual(bytesToHex(nobleHashUint.create().update(b1).update(b2).digest()))
-        // expect(new SHA256().update(b1Bytes).update(b2Bytes).update(b3Bytes).digest().toHex()).toStrictEqual(digest768.toHex());
+        expect(new SHA256().update(b1Bytes).update(b2Bytes).update(b3Bytes).digest().toHex())
+        .toEqual(digest768.toHex());
       }
     }
   });
-
-  // ===============================================================
-  let BUF_768 = new Uint8Array(256 * 3);
-    // Fill with random data
-    for (let i = 0; i < (256 * 3) / 32; i++)
-      BUF_768.set(crypto.createHash('sha256').update(new Uint8Array(i)).digest(), i * 32);
-  // ===============================================================
-
-  test.skip(`Partial: sha256`, () => {
-    const fnH = nobleHashUint(BUF_768);
-    for (let i = 0; i < 256; i++) {
-      let b1 = BUF_768.subarray(0, i);
-      for (let j = 0; j < 256; j++) {
-        let b2 = BUF_768.subarray(i, i + j);
-        let b3 = BUF_768.subarray(i + j);
-        expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
-        expect(nobleHashUint.create().update(b1).update(b2).update(b3).digest()).toStrictEqual(fnH);
-      }
-    }
-  });
-
-  // Same as before, but creates copy of each slice, which changes dataoffset of typed array
-  // Catched bug in blake2
-  test.skip(`Partial (copy): sha256 partial`, () => {
-    const fnH = nobleHashUint(BUF_768);
-    for (let i = 0; i < 256; i++) {
-      let b1 = BUF_768.subarray(0, i).slice();
-      for (let j = 0; j < 256; j++) {
-        let b2 = BUF_768.subarray(i, i + j).slice();
-        let b3 = BUF_768.subarray(i + j).slice();
-        expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
-        expect(nobleHashUint.create().update(b1).update(b2).update(b3).digest()).toStrictEqual(fnH);
-      }
-    }
-  }); 
 });

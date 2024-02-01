@@ -1,4 +1,4 @@
-import { Bytes, UInt32, UInt8 } from 'o1js';
+import { Bytes, Field, UInt32, UInt8 } from 'o1js';
 import { H as initialHashWords, K } from './constants.js';
 import {
   ch,
@@ -267,50 +267,6 @@ class SHA256 {
   }
 }
 
-import { Provable, Field } from 'o1js';
-import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
-import { bytesToHex, concatBytes } from '@noble/hashes/utils';
-import { Timer } from './test-utils.js';
-
-let input = Bytes.fromString('abc');
-let digest = new SHA256().update(input).digest();
-Provable.log('digest from class: ', digest.toHex());
-
-let input1 = new Uint8Array([1, 2]);
-let input2 = new Uint8Array([3, 4]);
-let input12 = concatBytes(input1, input2);
-
-let nobleChain = nobleSha256(input12);
-let nobleConcat = nobleSha256.create().update(input1).update(input2).digest();
-Provable.log('\nnobleChain:  ', bytesToHex(nobleChain));
-Provable.log('nobleWhole:  ', bytesToHex(nobleConcat));
-
-let shaChain = new SHA256().update(Bytes.from(input12)).digest().toHex();
-let shaConcat = new SHA256()
-  .update(Bytes.from(input1))
-  .update(Bytes.from(input2))
-  .digest()
-  .toHex();
-Provable.log('\nshaChain:    ', shaChain);
-Provable.log('shaWholet:   ', shaConcat);
-
-// measure run time
-const timer = new Timer();
-SHA256.hash(Bytes.fromString('abc')).toHex();
-timer.end();
-console.log('timer: ', timer.executionTime);
-
-// prove that the class hash function is provable
-class Bytes32 extends Bytes(32) {}
-console.time('sha256 witness');
-Provable.runAndCheck(() => {
-  let input = Provable.witness(Bytes32.provable, () => Bytes32.random());
-  SHA256.hash(input);
-});
-console.timeEnd('sha256 witness');
-
-//TODO Refactor and refine code
-//TODO Adapt and verify sliding window test
 //TODO Update code documentation
 //TODO Omit unnecessary files
 //TODO? point to the fact that the o1js used custom sigma functions
