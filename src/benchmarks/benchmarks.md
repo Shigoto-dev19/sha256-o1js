@@ -1,8 +1,9 @@
 ### Iterations = 2500
 
-| Hash Function     | Operations/sec  | Time per Operation | Min Time | Max Time | Variability |
-| ----------------- | --------------- | ------------------ | -------- | -------- | ----------- |
-| o1jsSha256Circom  | 6 ops/sec       | 149ms/op ± 1.34%   | 105ms    | 392ms    | ± 1.34%     |
-| o1jsSha256Gadgets | 334 ops/sec     | 2ms/op ± 1.56%     | 1ms      | 12ms     | ± 1.56%     |
-| nodeSha256        | 331,785 ops/sec | 3μs/op ± 14.46%    | 1μs      | 515μs    | ± 14.46%    |
-| nobleSha256       | 146,370 ops/sec | 6μs/op ± 28.78%    | 1μs      | 2ms      | ± 28.78%    |
+| Hash Function           | Operations/sec       | Average Time/op  | Min Time | Max Time | Variability |
+|-------------------------|----------------------|------------------| -------- | -------- | ----------- |
+| o1jsSha256Released      | 267 ops/sec          | 3ms/op           |    -     |    -     |      -      |
+| myO1jsSha256            | 244 ops/sec          | 4ms/op           |    -     |    -     |      -      |
+| myO1jsSha256Circom      | 4 ops/sec            | 223ms/op         |    -     |    -     |      -      |
+| nodeSha256              | 309,501 ops/sec      | 3μs/op           |   2μs    |   327μs  |   ± 8.46%   | 
+| nobleSha256             | 158,127 ops/sec      | 6μs/op ± 9.56%   |   3μs    |   671μs  |   ± 9.56%   |

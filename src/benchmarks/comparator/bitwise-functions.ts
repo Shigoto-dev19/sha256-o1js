@@ -22,13 +22,13 @@ export {
  *
  * @param {UInt32} input - The 32-bit word to be rotated.
  * @param {number} r - The number of positions to rotate the bits to the right.
- * @returns {Field} A new 32-bit field element representing the result of the right rotation.
+ * @returns {UInt32} A new 32-bit field element representing the result of the right rotation.
  *
  * @throws {Error} If the resulting field element exceeds the range of 2^32.
  *
  * @example
- * const inputField = Field(...); // Initialize with a 32-bit field element
- * const rotatedResult = rotateRight(inputField, 4); // Performs a right rotation by 4 positions.
+ * const input = UInt32.from(...); // Initialize with a 32-bit field element
+ * const rotatedResult = rotateRight(input, 4); // Performs a right rotation by 4 positions.
  */
 function rotateRight(input: UInt32, r: number): UInt32 {
   const inputBinary = input.value.toBits(32);
@@ -50,13 +50,13 @@ function rotateRight(input: UInt32, r: number): UInt32 {
  * the native o1js function (Gadgets.rightShift(x, r)). It specifically operates on
  * hardcoded 32-bit field elements.
  *
- * @param {Field} input - The 32-bit field element to be shifted.
+ * @param {UInt32} input - The 32-bit field element to be shifted.
  * @param {number} r - The number of positions to shift the bits to the right.
- * @returns {Field} A new 32-bit field element representing the result of the right shift.
+ * @returns {UInt32} A new 32-bit field element representing the result of the right shift.
  *
  * @example
- * const inputField = Field(...); // Initialize with a 32-bit field element
- * const shiftedResult = shiftRight(inputField, 4); // Performs a right shift by 4 positions.
+ * const input = UInt32.from(...); // Initialize with a 32-bit field element
+ * const shiftedResult = shiftRight(input, 4); // Performs a right shift by 4 positions.
  */
 function shiftRight(input: UInt32, r: number): UInt32 {
   const inputBinary = input.value.toBits(32);
@@ -78,16 +78,16 @@ function shiftRight(input: UInt32, r: number): UInt32 {
  *
  * The choice bitwise operation is defined as: ch(x, y, z) = (x AND y) XOR (-x AND z).
  *
- * @param {Field} x - The first 32-bit field element.
- * @param {Field} y - The second 32-bit field element.
- * @param {Field} z - The third 32-bit field element.
- * @returns {Field} A new 32-bit field element representing the result of the ch operation.
+ * @param {UInt32} x - The first 32-bit field element.
+ * @param {UInt32} y - The second 32-bit field element.
+ * @param {UInt32} z - The third 32-bit field element.
+ * @returns {UInt32} A new 32-bit field element representing the result of the ch operation.
  *
  * @example
- * const xField = Field(...); // Initialize with a 32-bit field element
- * const yField = Field(...); // Initialize with a 32-bit field element
- * const zField = Field(...); // Initialize with a 32-bit field element
- * const chResult = ch(xField, yField, zField); // Performs the ch operation.
+ * const x = UInt32.from(...); // Initialize with a 32-bit field element
+ * const y = UInt32.from(...); // Initialize with a 32-bit field element
+ * const z = UInt32.from(...); // Initialize with a 32-bit field element
+ * const chResult = ch(x, y, z); // Performs the ch operation.
  */
 function ch(x: UInt32, y: UInt32, z: UInt32): UInt32 {
   const a = x.value.toBits(32).map((bit) => bit.toField());
@@ -114,10 +114,10 @@ function ch(x: UInt32, y: UInt32, z: UInt32): UInt32 {
  * @returns {UInt32} A new 32-bit field element representing the result of the Maj operation.
  *
  * @example
- * const xField = Field(...); // Initialize with a 32-bit field element
- * const yField = Field(...); // Initialize with a 32-bit field element
- * const zField = Field(...); // Initialize with a 32-bit field element
- * const majResult = maj(xField, yField, zField); // Performs the Maj operation.
+ * const x = UInt32.from(...); // Initialize with a 32-bit field element
+ * const y = UInt32.from(...); // Initialize with a 32-bit field element
+ * const z = UInt32.from(...); // Initialize with a 32-bit field element
+ * const majResult = maj(x, y, z); // Performs the Maj operation.
  */
 function maj(x: UInt32, y: UInt32, z: UInt32): UInt32 {
   /*
@@ -145,12 +145,12 @@ function maj(x: UInt32, y: UInt32, z: UInt32): UInt32 {
  *
  * The Σ0 function is defined as: Σ0(x) = ROTR(2, x) XOR ROTR(13, x) XOR ROTR(22, x).
  *
- * @param {Field} x - The 32-bit field element to be processed by the Sigma-0 function.
- * @returns {Field} A new 32-bit field element representing the result of the Sigma-0 function.
+ * @param {UInt32} x - The 32-bit field element to be processed by the Sigma-0 function.
+ * @returns {UInt32} A new 32-bit field element representing the result of the Sigma-0 function.
  *
  * @example
- * const xField = Field(...); // Initialize with a 32-bit field element
- * const Σ0Result = SIGMA0(xField); // Calculates the Sigma-0 function.
+ * const x = UInt32.from(...); // Initialize with a 32-bit field element
+ * const Σ0Result = SIGMA0(x); // Calculates the Sigma-0 function.
  */
 function SIGMA0(x: UInt32): UInt32 {
   const rotr2 = rotateRight(x, 2);
@@ -162,6 +162,7 @@ function SIGMA0(x: UInt32): UInt32 {
     rotr22.value,
     32
   );
+
   return UInt32.from(output);
 }
 
@@ -170,12 +171,12 @@ function SIGMA0(x: UInt32): UInt32 {
  *
  * The Σ1 function is defined as: Σ1(x) = ROTR(6, x) XOR ROTR(11, x) XOR ROTR(25, x).
  *
- * @param {Field} x - The 32-bit field element to be processed by the Σ1 function.
- * @returns {Field} A new 32-bit field element representing the result of the Σ1 function.
+ * @param {UInt32} x - The 32-bit field element to be processed by the Σ1 function.
+ * @returns {UInt32} A new 32-bit field element representing the result of the Σ1 function.
  *
  * @example
- * const xField = Field(...); // Initialize with a 32-bit field element
- * const Σ1Result = SIGMA1(xField); // Calculates the Σ1 function.
+ * const x = UInt32.from(...); // Initialize with a 32-bit field element
+ * const Σ1Result = SIGMA1(x); // Calculates the Σ1 function.
  */
 function SIGMA1(x: UInt32): UInt32 {
   const rotr6 = rotateRight(x, 6);
@@ -187,6 +188,7 @@ function SIGMA1(x: UInt32): UInt32 {
     rotr25.value,
     32
   );
+
   return UInt32.from(output);
 }
 
@@ -199,8 +201,8 @@ function SIGMA1(x: UInt32): UInt32 {
  * @returns {UInt32} A new 32-bit field element representing the result of the σ0 function.
  *
  * @example
- * const xField = Field(...); // Initialize with a 32-bit field element
- * const σ0Result = sigma0(xField); // Calculates the σ0 function.
+ * const x = UInt32.from(...); // Initialize with a 32-bit field element
+ * const σ0Result = sigma0(x); // Calculates the σ0 function.
  */
 function sigma0(x: UInt32): UInt32 {
   const rotr7 = rotateRight(x, 7);
@@ -222,8 +224,8 @@ function sigma0(x: UInt32): UInt32 {
  * @returns {UInt32} A new 32-bit field element representing the result of the σ1 function.
  *
  * @example
- * const xField = Field(...); // Initialize with a 32-bit field element
- * const sigma1Result = sigma1(xField); // Calculates the σ1 function.
+ * const x = UInt32.from(...); // Initialize with a 32-bit field element
+ * const sigma1Result = sigma1(x); // Calculates the σ1 function.
  */
 function sigma1(x: UInt32): UInt32 {
   const rotr17 = rotateRight(x, 17);
@@ -253,14 +255,14 @@ function bitwiseAddition2Mod32(a: UInt32, b: UInt32): UInt32 {
  *
  * This function iteratively adds multiple field elements using the bitwiseAddition2Mod32 function.
  *
- * @param {...Field} args - The 32-bit field elements to be added.
- * @returns {Field} A new 32-bit field element representing the result of the bitwise addition modulo 2^32.
+ * @param {...UInt32} args - The 32-bit field elements to be added.
+ * @returns {UInt32} A new 32-bit field element representing the result of the bitwise addition modulo 2^32.
  *
  * @example
- * const aField = Field(...); // Initialize with a 32-bit field element
- * const bField = Field(...); // Initialize with another 32-bit field element
- * const cField = Field(...); // Initialize with yet another 32-bit field element
- * const result = bitwiseAdditionMod32(aField, bField, cField); // Performs bitwise addition modulo 2^32.
+ * const a = UInt32.from(...); // Initialize with a 32-bit field element
+ * const b = UInt32.from(...); // Initialize with another 32-bit field element
+ * const c = UInt32.from(...); // Initialize with yet another 32-bit field element
+ * const result = bitwiseAdditionMod32(a, b, c); // Performs bitwise addition modulo 2^32.
  */
 function addMod32(...args: UInt32[]): UInt32 {
   let sum = UInt32.from(0);

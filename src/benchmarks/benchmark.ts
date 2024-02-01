@@ -8,11 +8,12 @@ import {
 } from '../test-utils.js';
 import { Hash, Bytes } from 'o1js';
 
-function o1jsSha3_256(input: string) {
+// the newly released SHA256 gadget by the o1js team
+function o1jsHashReleased(input: string) {
   const parsedInput = Bytes.fromString(input);
-  const sha3Digest = Hash.SHA3_256.hash(parsedInput);
+  const sha2Digest = Hash.SHA2_256.hash(parsedInput)
 
-  return sha3Digest.toHex();
+  return sha2Digest.toHex();
 }
 
 const { mark, compare, run } = bench;
@@ -28,9 +29,9 @@ run(async () => {
   );
 
   await compare(`\nSHA256 Benchmarks => ${iterations} iterations`, iterations, {
-    o1jsSha3_256: () => o1jsSha3_256(randomInputGenerator() as string),
-    o1jsSha256Gadgets: () => o1jsHash(randomInputGenerator()),
-    o1jsSha256Circom: () => o1jsHashCircom(randomInputGenerator()),
+    o1jsSha256Released: () => o1jsHashReleased(randomInputGenerator() as string),
+    myO1jsSha256: () => o1jsHash(randomInputGenerator()),
+    myO1jsSha256Circom: () => o1jsHashCircom(randomInputGenerator()),
     nodeSha256: () => nodeHash(randomInputGenerator()),
     nobleSha256: () => nobleHash(randomInputGenerator()),
   });
