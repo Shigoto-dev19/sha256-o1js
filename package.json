@@ -23,7 +23,8 @@
     "lint": "npx eslint src/* --fix",
     "digest": "node build/src/benchmarks/command.js",
     "benchmark": "npm run build && node build/src/benchmarks/benchmark.js",
-    "witness-time": "npm run build && node build/src/benchmarks/sha256-witness.js"
+    "witness-time": "npm run build && node build/src/benchmarks/sha256-witness.js",
+    "summary": "npm run build && node build/src/zkprogram.js"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.4",
