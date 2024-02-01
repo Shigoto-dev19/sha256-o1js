@@ -108,25 +108,25 @@
 
 ### DAY6: 17th January
 
-  - The compiler doesn't differentiate when provable and non-provable code should be used
-    - There can be some solutions using `Provable.if` or `Provable.asProve` but there are some constraints that I would like to point to
-      - `Provable.if` only supports a single field type, that's why a desirable Field[], Bool[] etc... are not possible to retrieve from such a method
-      - `Provable.asProver` returns void and upper-scope variables are cannot be read inside its callback, that's why, it makes it not usable in many cases.
-  - Update sha256 inputs to provable Bytes type the same as the o1js keccak release
-    - Now the input type is only Bytes which take string bytified or number as bytes directly.
-    - I learned a lot about using advanced types in o1js
-      - The bytes input are flexible but the size of the bytes should static and declared inside the contract!
-      - Update test-util random input generator for both strings and Uint8array type
-      - Omit redundant code that separated between string and Field input types
-      - Update tests and verify integrity
-      - check that project code is functional, provable, and deployable.
-    - constraint logs are showing an error, maybe the Circuit API is not yet updated to the Bytes provable type
-    - After a lot of debugging --> all other scripts work
-      - Deployable main.ts
-      - ProofsEnable Deployable main.ts
-      - zkcontract tests
-      - witness-time script
-      - benchmarks
+- The compiler doesn't differentiate when provable and non-provable code should be used
+  - There can be some solutions using `Provable.if` or `Provable.asProve` but there are some constraints that I would like to point to
+    - `Provable.if` only supports a single field type, that's why a desirable Field[], Bool[] etc... are not possible to retrieve from such a method
+    - `Provable.asProver` returns void and upper-scope variables are cannot be read inside its callback, that's why, it makes it not usable in many cases.
+- Update sha256 inputs to provable Bytes type the same as the o1js keccak release
+  - Now the input type is only Bytes which take string bytified or number as bytes directly.
+  - I learned a lot about using advanced types in o1js
+    - The bytes input are flexible but the size of the bytes should static and declared inside the contract!
+    - Update test-util random input generator for both strings and Uint8array type
+    - Omit redundant code that separated between string and Field input types
+    - Update tests and verify integrity
+    - check that project code is functional, provable, and deployable.
+  - constraint logs are showing an error, maybe the Circuit API is not yet updated to the Bytes provable type
+  - After a lot of debugging --> all other scripts work
+    - Deployable main.ts
+    - ProofsEnable Deployable main.ts
+    - zkcontract tests
+    - witness-time script
+    - benchmarks
 
 ### DAY7: 18th January
 
@@ -147,18 +147,19 @@
 
 - Sort order of preprocessing functions.
 - Update all bitwise functions to use UInt32 type instead of Field for better size assertion.
- - Convert all 32 bit words from implicit Field to UInt32 type.
- - Utilize native bitwise function such as rotate and rightShift directly from UInt32 methods.
- - Remove redundant bitwise function declarations. 
- - Update sha256 circom implementation regarding that it imports functions commonly from **preprocessing.ts**
- - Fix addMod32 to not use UInt32 because addition in UIn32 doesn't overflow. 
-- Bechmarks show that sha256 is 60% faster than the one from the last commit.  
-- It is amazing how the o1js added many useful perks in the last release. 
-- Further debugging for sha256 using Circuit API but still not running. 
+- Convert all 32 bit words from implicit Field to UInt32 type.
+- Utilize native bitwise function such as rotate and rightShift directly from UInt32 methods.
+- Remove redundant bitwise function declarations.
+- Update sha256 circom implementation regarding that it imports functions commonly from **preprocessing.ts**
+- Fix addMod32 to not use UInt32 because addition in UIn32 doesn't overflow.
+- Bechmarks show that sha256 is 60% faster than the one from the last commit.
+- It is amazing how the o1js added many useful perks in the last release.
+- Further debugging for sha256 using Circuit API but still not running.
 
 ### DAY9: 22th January
+
 - Integrate logs in test utility Timer class.
- - Now it accepts an optional title in the constructor and logs it with executionTime when end() method is called
+- Now it accepts an optional title in the constructor and logs it with executionTime when end() method is called
 - I wonder if there is a direct method like `assertEquals` for the provable Bytes class.
 - Add SHA256 ZkProgram instance
   - It includes logs for compile, proving, and verification time
@@ -169,12 +170,13 @@
   - All tests pass
 
 ### DAY10: 28th January
+
 - In order to use the SHA256 as updatable hash function --> Add update method
 - Add SHA256 class that is restructuring of the single function into a class to enable adding update method.
   - update method is a chained method that returns an instance of the SHA256 class.
   - in other words, when hashing a single input, we initialize the function with nothing-up my sleeve words; on the otherside the update method set the digest word as the initial state for a new input.
 - It was difficult to have the gist of how things work with chained instances of class to have a running update method.
-- The update method when used as ```let digest = new SHA256().update(input).digest()``` works fine with a single input.
+- The update method when used as `let digest = new SHA256().update(input).digest()` works fine with a single input.
 - The update method method doesn't output expected digest results when trying to chain different scattered bytes
   - Add sliding window tests for this purpose following [noble-hashes tests](https://github.com/paulmillr/noble-hashes/blob/main/test/hashes.test.js)
   - The tests confirm that the newly added update method is not consistent.
@@ -182,6 +184,7 @@
 - The good thing about the update method, is that it can also be used as a mixer of bytes thanks to the avalanche effect and many other use cases.
 
 ### DAY11: 31th January
+
 - Rewrite the SHA256 class all over again
   - The class used simulating [noble-hashes](https://github.com/paulmillr/noble-hashes/blob/main/src/sha256.ts) implementation was running but the integrity of the digest for a single update works fine but not for chained updates.
   - The class had a lot of noise on the circuit regarding that a normal TS implementation is focused on buffer optimization, therefore it made it a lot more difficult to tweak the code.
@@ -192,4 +195,28 @@
   - I added some code at the bottom of the file to verify the the class
     - Outputs the correct digest
     - Takes roughly the same time as before
-    - Is provable  
+    - Is provable
+
+### DAY12: 1st February
+
+- Move SHA256 to a separate file.
+  - Refactor code.
+  - Wrap utility functions as private methods inside the class.
+  - Add documentation for the methods.
+- Fix sliding windows tests 3/256 after adding the update method existing in the SHA256 class.
+  - Verify test functionality --> takes around 1.5 hours to finish.
+  - Remove testing logs in the `sha256-class.ts` file.
+- Add script for `zkprogram` summary --> `npm run summary` to log:
+  - number of rows
+  - compile time
+  - proving time
+  - verification time
+- Update the benchmark file by replacing SHA3 with the newly released SHA256 function by the o1js team.
+  - the released SHA256 is 25% faster than my implementation.
+  - after having a look on the source code, I can see that the team used custom gates and optimization on the sigma functions
+    - this would make code run faster as I verified the effect of custom gate optimization on the SHA2 efficiency
+    - I wish I could learn to do sth similar, unfortunately, I can't see any documentation of how can that be done!
+- Update circom comparator documentation.
+- Update benchmarks readme.
+- Delete zkcontract.test.ts file & Polish main.ts file.
+- Lint main src directory files.
