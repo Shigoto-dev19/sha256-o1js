@@ -131,7 +131,7 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
     }
   });
 
-  // !This test takes extremely long time to finish 
+  // !This test takes extremely long time to finish
   test.skip('should have passing sliding window tests - 4096', () => {
     const testWindow4096 = new Array<string>(4096);
     for (let i = 0; i < testWindow4096.length; i++)
@@ -150,11 +150,14 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
   */
   test.skip('should pass sliding window tests - 3/256', () => {
     let BUF_768 = new Uint8Array(256 * 3);
-    
+
     // Fill with random data
     for (let i = 0; i < (256 * 3) / 32; i++)
-      BUF_768.set(crypto.createHash('sha256').update(new Uint8Array(i)).digest(), i * 32);
-    
+      BUF_768.set(
+        crypto.createHash('sha256').update(new Uint8Array(i)).digest(),
+        i * 32
+      );
+
     let BYTES_768 = Bytes.from(BUF_768);
     const digest768 = sha256O1js(BYTES_768);
     for (let i = 0; i < 256; i++) {
@@ -163,13 +166,19 @@ describe('Testing o1js SHA256 hash function against to node-js implementation', 
       for (let j = 0; j < 256; j++) {
         let b2 = BUF_768.subarray(i, i + j);
         let b2Bytes = Bytes.from(b2);
-        
+
         let b3 = BUF_768.subarray(i + j);
         let b3Bytes = Bytes.from(b3);
-        
+
         expect(concatBytes(b1, b2, b3)).toStrictEqual(BUF_768);
-        expect(new SHA256().update(b1Bytes).update(b2Bytes).update(b3Bytes).digest().toHex())
-        .toEqual(digest768.toHex());
+        expect(
+          new SHA256()
+            .update(b1Bytes)
+            .update(b2Bytes)
+            .update(b3Bytes)
+            .digest()
+            .toHex()
+        ).toEqual(digest768.toHex());
       }
     }
   });

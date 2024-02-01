@@ -17,9 +17,7 @@ import {
 } from './preprocessing.js';
 import { wordToBytes } from './binary-utils.js';
 
-export {
-  sha256O1js,
-}
+export { sha256O1js };
 
 function sha256O1js(input: Bytes): Bytes {
   const H = [...initialHashWords];

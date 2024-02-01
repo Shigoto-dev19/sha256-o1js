@@ -153,14 +153,6 @@ function nodeHash(input: string | Uint8Array): string {
   return crypto.createHash('sha256').update(input).digest('hex');
 }
 
-// function o1jsHashField(input: Field): string {
-//   const digest = sha256O1js(Bytes.from(Field.toBytes(input)));
-//   const digestBinary = digest.map(uint32ToBinary).join('');
-//   const digestHex = binaryToHex(digestBinary);
-
-//   return digestHex;
-// }
-
 function nobleHash(input: string | Uint8Array): string {
   return bytesToHex(nobleSha256(input));
 }

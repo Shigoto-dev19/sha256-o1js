@@ -268,7 +268,9 @@ class SHA256 {
 }
 
 //TODO Update code documentation
+//TODO? add the released sha256 in benchmarks -> released, direct, class.
+
 //TODO Omit unnecessary files
 //TODO? point to the fact that the o1js used custom sigma functions
-//TODO? add the released sha256 in benchmarks -> released, direct, class.
+
 //TODO? Update the readme and repo description

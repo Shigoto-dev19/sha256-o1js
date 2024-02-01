@@ -49,7 +49,7 @@ describe('Bitwise Operation Tests', () => {
         for (let i = 0; i < 1000; i++) testRotateRight();
       });
 
-      // !note the native o1js rotate32 Gadget doesn't support bits=0 rotation
+      // !note that the native o1js rotate32 Gadget doesn't support bits=0 rotation
       test.skip('should handle rotation by 0 bits - 1000 ITERATIONS', () => {
         for (let i = 0; i < 1000; i++) {
           const input = generateRandomBytes();
