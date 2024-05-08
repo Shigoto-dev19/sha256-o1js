@@ -29,7 +29,7 @@ export class Sha256ZkApp extends SmartContract {
     this.publicInput.set(commitment);
   }
 
-  @method hash(x: Bytes3) {
+  @method async hash(x: Bytes3) {
     const publicDigest = this.publicInput.getAndRequireEquals();
     const digest = sha256O1js(x);
     const instance = Poseidon.hash(digest.toFields());

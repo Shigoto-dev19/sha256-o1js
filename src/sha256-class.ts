@@ -90,14 +90,14 @@ class SHA256 {
 
       for (let i = 0; i < 16; i++) {
         let j = pos + i * 4;
-        w[i] = UInt32.from(
+        w[i] = new UInt32(
           Field.fromBits(
             p
               .slice(j, (j += 4))
               .map((x) => x.value.toBits(8))
               .reverse()
               .flat()
-          )
+          ).value
         );
       }
 
@@ -266,11 +266,3 @@ class SHA256 {
     return digest;
   }
 }
-
-//TODO Update code documentation
-//TODO? add the released sha256 in benchmarks -> released, direct, class.
-
-//TODO Omit unnecessary files
-//TODO? point to the fact that the o1js used custom sigma functions
-
-//TODO? Update the readme and repo description

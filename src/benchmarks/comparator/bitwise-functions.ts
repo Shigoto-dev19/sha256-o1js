@@ -40,7 +40,7 @@ function rotateRight(input: UInt32, r: number): UInt32 {
 
   const output = Field.fromBits(outBinary);
 
-  return UInt32.from(output);
+  return new UInt32(output.value);
 }
 
 /**
@@ -70,7 +70,7 @@ function shiftRight(input: UInt32, r: number): UInt32 {
     }
   }
 
-  return UInt32.from(Field.fromBits(outBinary));
+  return new UInt32(Field.fromBits(outBinary).value);
 }
 
 /**
@@ -100,7 +100,7 @@ function ch(x: UInt32, y: UInt32, z: UInt32): UInt32 {
     out[k] = a[k].mul(b[k].sub(c[k])).add(c[k]);
   }
 
-  return UInt32.from(Field.fromBits(out.map((bit) => bit.toBits(1)[0])));
+  return new UInt32(Field.fromBits(out.map((bit) => bit.toBits(1)[0])).value);
 }
 
 /**
@@ -137,7 +137,7 @@ function maj(x: UInt32, y: UInt32, z: UInt32): UInt32 {
     out[k] = a[k].mul(b[k].add(c[k]).sub(mid[k].mul(2))).add(mid[k]);
   }
 
-  return UInt32.from(Field.fromBits(out.map((bit) => bit.toBits(1)[0])));
+  return new UInt32(Field.fromBits(out.map((bit) => bit.toBits(1)[0])).value);
 }
 
 /**
@@ -163,7 +163,7 @@ function SIGMA0(x: UInt32): UInt32 {
     32
   );
 
-  return UInt32.from(output);
+  return new UInt32(output.value);
 }
 
 /**
@@ -189,7 +189,7 @@ function SIGMA1(x: UInt32): UInt32 {
     32
   );
 
-  return UInt32.from(output);
+  return new UInt32(output.value);
 }
 
 /**
@@ -212,7 +212,7 @@ function sigma0(x: UInt32): UInt32 {
   const rotr7x18 = Gadgets.xor(rotr7.value, rotr18.value, 32);
 
   const output = Gadgets.xor(rotr7x18, shr3.value, 32);
-  return UInt32.from(output);
+  return new UInt32(output.value);
 }
 
 /**
@@ -237,7 +237,7 @@ function sigma1(x: UInt32): UInt32 {
     shr10.value,
     32
   );
-  return UInt32.from(output);
+  return new UInt32(output.value);
 }
 
 function bitwiseAddition2Mod32(a: UInt32, b: UInt32): UInt32 {
@@ -247,7 +247,7 @@ function bitwiseAddition2Mod32(a: UInt32, b: UInt32): UInt32 {
   });
   out.assertLessThan(TWO32);
 
-  return UInt32.from(out);
+  return new UInt32(out.value);
 }
 
 /**

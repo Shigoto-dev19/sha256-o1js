@@ -99,7 +99,7 @@ function parse512BitBlock(bits512Block: Bool[]): UInt32[] {
     bits32Words.push(bits32Word);
   }
 
-  return bits32Words.map((x) => UInt32.from(x));
+  return bits32Words.map((x) => new UInt32(x.value));
 }
 
 /**

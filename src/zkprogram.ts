@@ -12,7 +12,7 @@ let sha256ZkProgram = ZkProgram({
   methods: {
     hash: {
       privateInputs: [Bytes3.provable],
-      method(input: Bytes3) {
+      async method(input: Bytes3) {
         return sha256O1js(input);
       },
     },
@@ -20,7 +20,7 @@ let sha256ZkProgram = ZkProgram({
 });
 
 // Print SHA256 ZkProgram summary
-console.log('sha256 summary:', sha256ZkProgram.analyzeMethods().hash.summary());
+console.log('sha256 summary:', (await sha256ZkProgram.analyzeMethods()).hash.summary());
 
 // Compile SHA256 ZkProgram
 const compileTimer = new Timer('\nCompile Time');

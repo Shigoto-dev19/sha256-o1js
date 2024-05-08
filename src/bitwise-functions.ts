@@ -74,7 +74,7 @@ function addMod32(...args: UInt32[]): UInt32 {
   let sum = Field(0);
   for (const val of args) sum = Gadgets.addMod32(sum, val.value);
 
-  return UInt32.from(sum);
+  return new UInt32(sum.value);
 }
 
 function prepareMessageSchedule(bits32Words: UInt32[]): UInt32[] {
